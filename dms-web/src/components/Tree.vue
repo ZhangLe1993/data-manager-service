@@ -9,6 +9,7 @@
           :load="loadNode"
           lazy
           ref="tree"
+          accordion
           :highlight-current="true"
           @node-click="handleNodeClick"
           @node-contextmenu="handleContextMenu"
