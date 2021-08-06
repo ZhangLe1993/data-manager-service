@@ -10,6 +10,8 @@ public class Node {
     private String name;
     private String icon;
     private String type;
+    private String username;
     /*private Remote config;*/
+    private String url;
     private List<Node> children;
 }

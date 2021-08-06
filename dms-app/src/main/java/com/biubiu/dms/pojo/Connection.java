@@ -19,6 +19,7 @@ import static com.biubiu.dms.core.consts.Consts.JDBC_DATASOURCE_DEFAULT_VERSION;
 public class Connection extends BaseSource {
     private Long id;
     private String name;
+    private String mode;
     private String config;
 
     /**
@@ -37,10 +38,14 @@ public class Connection extends BaseSource {
         }
         try {
             JSONObject jsonObject = JSONObject.parseObject(this.config);
-            String host = jsonObject.getString("host");
-            Integer port = jsonObject.getInteger("port");
-            // 以 mysql 为例子
-            url = "jdbc:mysql://" + host + ":" + port;
+            if("standard".equals(mode)) {
+                String host = jsonObject. getString("host");
+                Integer port = jsonObject.getInteger("port");
+                // 以 mysql 为例子
+                url = "jdbc:mysql://" + host + ":" + port;
+            } else {
+                url = jsonObject. getString("url");
+            }
         } catch (Exception e) {
             log.error("get jdbc url from source config, {}", e.getMessage());
         }

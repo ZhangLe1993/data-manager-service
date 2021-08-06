@@ -1,5 +1,6 @@
 package com.biubiu.dms.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.biubiu.dms.controller.ConnectionController;
 import com.biubiu.dms.core.consts.Consts;
 import com.biubiu.dms.core.exception.NotFoundException;
@@ -26,18 +27,27 @@ public class ConnectionService {
     @Resource
     private ConnectionDao connectionDao;
 
-    public List<Node> getConnectionList() {
+    public List<Node> getConnectionList(String mode) {
         List<Connection> list = connectionDao.list();
         List<Node> target = new ArrayList<>();
         for (Connection connection : list) {
-            Node node = new Node();
-            Long id = connection.getId();
-            node.setId(id);
-            node.setName(connection.getName());
-            node.setType("connection");
-            node.setIcon(Consts.CONNECTION_ICON);
-            node.setChildren(new ArrayList<>());
-            target.add(node);
+            String cMode = connection.getMode();
+            if(cMode.equals(mode)) {
+
+                Node node = new Node();
+                Long id = connection.getId();
+                node.setId(id);
+                node.setName(connection.getName());
+                node.setType("connection");
+                node.setIcon(Consts.CONNECTION_ICON);
+                node.setChildren(new ArrayList<>());
+                JSONObject json = JSONObject.parseObject(connection.getConfig());
+                if("separate".equals(mode)) {
+                    node.setUrl(json.getString("url"));
+                }
+                node.setUsername(json.getString("username"));
+                target.add(node);
+            }
         }
         return target;
     }

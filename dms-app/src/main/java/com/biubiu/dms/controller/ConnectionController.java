@@ -36,7 +36,7 @@ public class ConnectionController {
     @GetMapping(value = "")
     public ResponseEntity<?> getConnectionList() {
         try {
-            List<Node> list = connectionService.getConnectionList();
+            List<Node> list = connectionService.getConnectionList("standard");
             return new ResponseEntity<>(list, HttpStatus.OK);
         } catch(Exception e) {
             logger.error("", e);

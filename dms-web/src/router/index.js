@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Index from '../views/Index.vue'
+import Home from '../views/Home'
 
 Vue.use(VueRouter);
 
 const routes = [
     {
-        path: '/**',
+        path: '/',
         name: 'Index',
         component: Index,
         meta:  {title: '数据库管理平台'},
@@ -15,6 +16,12 @@ const routes = [
         path: '/index',
         name: 'Index',
         component: Index,
+        meta:  {title: '数据库管理平台'},
+    },
+    {
+        path: '/home',
+        name: 'Home',
+        component: Home,
         meta:  {title: '数据库管理平台'},
     },
 ];

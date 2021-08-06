@@ -20,6 +20,8 @@ import 'v-contextmenu/dist/index.css'
 * cnpm install --save vue2-ace-editor
 * 格式刷
 * cnpm install --save sql-formatter@2.3.3
+* 剪切板
+* cnpm install --save clipboard
 
 * */
 Vue.prototype.$api = api;
