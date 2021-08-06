@@ -39,7 +39,7 @@
         },
         methods: {
             addTab(targetName, tableHeader, tableData) {
-                console.log(targetName);
+                // console.log(targetName);
                 let newTabName = ++this.tabIndex + '';
                 this.editableTabs.push({
                     title: '#结果集',

@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     addTab(node) {
-      console.log(node);
+      // console.log(node);
       let newTabName = ++this.tabIndex + '';
       this.editableTabs.push({
         title: node.name,
@@ -83,7 +83,7 @@ export default {
       }
     },
     format() {
-      console.log(this.$refs[this.activeName][0]);
+      // console.log(this.$refs[this.activeName][0]);
       if(this.activeName === '1' || this.activeName === 1) {
         this.$refs[this.activeName][0].format();
       } else {

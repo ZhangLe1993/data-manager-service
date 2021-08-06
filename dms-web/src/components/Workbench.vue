@@ -7,7 +7,7 @@
         <i class="el-icon-plus" style="margin-top: 30px"></i>
       </el-card>
 
-      <el-card @dblclick.native="doubleClick" class="box-card" v-else>
+      <el-card @dblclick.native="doubleClick(item)" class="box-card" v-else>
         <div slot="header" class="clearfix">
           <i class="el-icon-edit" style="cursor: pointer" @click="handleEditNode(item)">编辑</i> &nbsp;&nbsp;&nbsp;&nbsp;
           <i class="el-icon-delete" style="cursor: pointer">删除</i>
@@ -81,20 +81,18 @@ export default {
       this.connectForm = {id: 0, name: '',  url : '', username : '', password : '' };
     },
     handleAddConnect() {
-      console.log("新增实例");
-      this.connectTitle = '新增连接';
+      this.connectTitle = '新增实例';
       // form 重置
       this.connectForm = {id: 0, name: '', url : '', username : '', password : '' };
       this.connectFormVisible = true;
     },
     handleEditNode(item) {
-      this.connectTitle = '编辑连接';
+      this.connectTitle = '编辑实例';
       this.connectForm = {id : item.id, name: item.name, url : item.url, username : item.username, password : item.password, };
       this.connectFormVisible = true;
     },
-    doubleClick() {
-      console.log("双击");
-      this.addTab("aaa");
+    doubleClick(item) {
+      this.addTab(item);
     },
     copyText(e, text) {
       const clipboard = new Clipboard(e.target, { text: () => text })
@@ -118,7 +116,7 @@ export default {
   },
   mounted() {
     this.getConnectionList();
-    console.log(this.schemaList)
+    // console.log(this.schemaList)
   }
 
 }

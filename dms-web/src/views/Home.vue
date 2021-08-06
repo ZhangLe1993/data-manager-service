@@ -19,7 +19,7 @@
       >
         <!-- 工作台 -->
         <Workbench v-if=" item.name === '1'" :addTab="addTab"></Workbench>
-        <SchemaManage v-if="item.name !== '1'"> </SchemaManage>
+        <SchemaManage v-if="item.name !== '1'" :schemaItem="selectSchemaItem"> </SchemaManage>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -41,27 +41,29 @@ export default {
         title: '工作台',
         name: '1',
         closable: false,
-        content: 'Tab 1 content',
+        schemaItem: null,
       }],
       tabIndex: 1,
       activeName: 1,
+      selectSchemaItem: null,
     }
   },
   methods: {
     /**
      * 添加选项卡
      */
-    addTab(targetName) {
-      console.log(targetName);
+    addTab(schemaItem) {
+      // console.log(schemaItem);
       let newTabName = ++this.tabIndex + '';
       this.editableTabs.push({
-        title: 'New Tab',
+        title: 'Query ' + schemaItem.name + ' ',
         name: newTabName,
         closable: true,
-        content: 'New Tab content'
+        schemaItem: schemaItem,
       });
       this.activeName = newTabName;
       this.editableTabsValue = newTabName;
+      this.selectSchemaItem = schemaItem;
     },
     /**
      * 移除选项卡
@@ -69,18 +71,21 @@ export default {
     removeTab(targetName) {
       let tabs = this.editableTabs;
       let activeName = this.editableTabsValue;
+      let selectItem = null;
       if (activeName === targetName) {
         tabs.forEach((tab, index) => {
           if (tab.name === targetName) {
             let nextTab = tabs[index + 1] || tabs[index - 1];
             if (nextTab) {
               activeName = nextTab.name;
+              selectItem = nextTab.schemaItem;
             }
           }
         });
       }
       this.activeName = activeName;
       this.editableTabsValue = activeName;
+      this.selectSchemaItem = selectItem;
       this.editableTabs = tabs.filter(tab => tab.name !== targetName);
     },
     /**
@@ -90,6 +95,7 @@ export default {
     switchTab(tabs) {
       // 更改当前选中的选项卡
       this.activeName = tabs.name;
+      this.selectSchemaItem = tabs.schemaItem;
     },
   }
 }

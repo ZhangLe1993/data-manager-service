@@ -84,7 +84,7 @@ export default {
             const config = { url : formData.url, username : formData.username, password : formData.password };
             formData.config = JSON.stringify(config);
 
-            console.log(formData);
+            // console.log(formData);
             // 新增
             that.$api.post('/connection', JSON.stringify(formData), (res) => {
               if(res !== undefined && res.status !== undefined && res.status === 200) {
@@ -101,7 +101,7 @@ export default {
             const config = { url : formData.url, username : formData.username, password : formData.password };
             formData.config = JSON.stringify(config);
             that.$api.put('/connection', JSON.stringify(formData), (res) => {
-              console.log(res);
+              // console.log(res);
               if(res !== undefined && res.status !== undefined && res.status === 200) {
                 this.openLayer('消息', '恭喜你，修改成功。', 'success');
                 // 关闭弹出层
@@ -113,7 +113,7 @@ export default {
             });
           }
         } else {
-          console.log('error submit!!');
+          // console.log('error submit!!');
           return false;
         }
       });

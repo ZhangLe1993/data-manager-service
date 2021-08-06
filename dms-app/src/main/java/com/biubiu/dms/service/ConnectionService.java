@@ -7,6 +7,7 @@ import com.biubiu.dms.core.exception.NotFoundException;
 import com.biubiu.dms.dao.ConnectionDao;
 import com.biubiu.dms.dto.Node;
 import com.biubiu.dms.pojo.Connection;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,6 @@ public class ConnectionService {
         for (Connection connection : list) {
             String cMode = connection.getMode();
             if(cMode.equals(mode)) {
-
                 Node node = new Node();
                 Long id = connection.getId();
                 node.setId(id);
@@ -43,7 +43,11 @@ public class ConnectionService {
                 node.setChildren(new ArrayList<>());
                 JSONObject json = JSONObject.parseObject(connection.getConfig());
                 if("separate".equals(mode)) {
-                    node.setUrl(json.getString("url"));
+                    String uri = json.getString("url");
+                    String pre = StringUtils.substringBefore(uri, "?");
+                    String schema = StringUtils.substringAfterLast(pre, "/");
+                    node.setSchema(schema);
+                    node.setUrl(uri);
                 }
                 node.setUsername(json.getString("username"));
                 target.add(node);

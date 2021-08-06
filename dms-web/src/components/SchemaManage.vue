@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="4">
         <el-tabs type="border-card">
-          <Tree :addTab="addTab"></Tree>
+          <TableTree :addEditTab="addEditTab" :schemaItem="schemaItem"></TableTree>
         </el-tabs>
       </el-col>
       <el-col :span="20">
@@ -40,30 +40,36 @@
 </template>
 
 <script>
-import Tree from "@/components/Tree";
+import TableTree from "@/components/TableTree";
 import EditorTabs from "@/components/EditorTabs";
 import OutputTabs from "@/components/OutputTabs";
 
 export default {
   name: "SchemaManage",
+  props: {
+    schemaItem: Object
+  },
   components: {
-    Tree: Tree,
+    TableTree: TableTree,
     EditorTabs: EditorTabs,
     OutputTabs: OutputTabs,
   },
   methods: {
     // 添加选项卡
-    addTab(node) {
+    addEditTab(node) {
       this.$refs.editorTabs.addTab(node);
     },
     run() {
       // 先清除掉上一次的
       this.$refs.outputTabs.removeResultTab();
       const content = this.$refs.editorTabs.getContent();
-      console.log(content);
+      if(content === undefined || content === null || content === '' || content.trim() === '') {
+        this.openLayer('提示', 'SQL为空, 请检查', 'error');
+        return;
+      }
       const that = this;
       that.$api.post('/exec/sql', { sourceId: 1, sql: content }, (res) => {
-        console.log(res);
+        // console.log(res);
         if(res.status === 200) {
           const data = res.data.data;
           const code = res.data.code;
@@ -71,7 +77,7 @@ export default {
             for(let i = 0; i < data.length; i++) {
               const list = data[i]['resultList'];
               const columns = data[i]['columns'];
-              console.log(list);
+              // console.log(list);
               // const tableHeader = that.$_.map(columns, 'name');
               // console.log(tableHeader);
               this.addResultTab(columns, list);
@@ -99,6 +105,20 @@ export default {
     },
     setLogs(content) {
       this.$refs.outputTabs.setRunLogs(content);
+    },
+    openLayer(title, msg, type) {
+      if(type === 'error') {
+        this.$notify.error({
+          title: title,
+          message: msg
+        });
+      } else {
+        this.$notify({
+          title: title,
+          message: msg,
+          type: type
+        });
+      }
     },
   }
 }

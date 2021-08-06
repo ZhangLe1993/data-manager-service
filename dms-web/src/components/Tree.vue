@@ -80,7 +80,7 @@ export default {
           const schemas = await this.schema(node);
           return resolve(schemas);
         case 'schema':
-          console.log(data);
+          // console.log(data);
           // eslint-disable-next-line no-case-declarations
           const arr = [{connectionId: data.connectionId, icon: 'iconfont', type: 'tables-folder', schema: data.name, name: 'Tables', children: []}, {connectionId: data.connectionId, type: 'views-folder', schema: data.name, name: 'Views', children: []}, {connectionId: data.connectionId, type: 'procedures-folder', schema: data.name, name: 'Stored Procedures', children: []}, {connectionId: data.connectionId, type: 'functions-folder', schema: data.name, name: 'Functions', children: []},]
           return resolve(arr);
@@ -145,7 +145,7 @@ export default {
       const data = node.data;
       // eslint-disable-next-line no-case-declarations
       const res = await this.getTables(data.connectionId, data.schema);
-      console.log(res);
+      // console.log(res);
       // eslint-disable-next-line no-case-declarations
       const tableList = res.tables;
       // eslint-disable-next-line no-case-declarations
@@ -170,7 +170,7 @@ export default {
     async getFields(id, schema, table) {
       const that = this;
       const res = await that.$api.syncGet('/connection/schema/table/fields', { id : id, schema: schema, table : table});
-      console.log(res);
+      // console.log(res);
       if(res.status === 200) {
         return res.data;
       } else {
@@ -180,7 +180,7 @@ export default {
     // eslint-disable-next-line no-unused-vars
     handleNodeClick(node) {
       if(node.type === 'NODE') {
-        console.log(node);
+        // console.log(node);
         this.addTab(node);
       }
     },
@@ -239,7 +239,7 @@ export default {
       this.connectFormVisible = true;
     },
     handleDeleteNode() {
-      console.log('删除链接');
+      // console.log('删除链接');
       // 删除
       const that = this;
       that.$api.delete('/connection', {id : this.currentClickNodeData.id}, (res) => {

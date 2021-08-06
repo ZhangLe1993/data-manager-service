@@ -40,7 +40,7 @@ let http = axios.create({
 // 添加请求拦截器
 axios.interceptors.request.use(config => {
     // config 请求配置
-    console.log("请求拦截器");
+    // console.log("请求拦截器");
     return config
 }, err => {
     return Promise.reject(err)
@@ -49,7 +49,7 @@ axios.interceptors.request.use(config => {
 // 添加响应拦截器
 axios.interceptors.response.use(res => {
     // res 响应结果
-    console.log("响应拦截器");
+    // console.log("响应拦截器");
     return res
 }, err => {
     return Promise.reject(err)

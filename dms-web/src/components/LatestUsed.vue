@@ -19,7 +19,7 @@ import AceEditor from "@/components/AceEditor";
       },
       methods: {
         handleSelect(key, keyPath) {
-          console.log(key, keyPath);
+          // console.log(key, keyPath);
         }
       }
     }

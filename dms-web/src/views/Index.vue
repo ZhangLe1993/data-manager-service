@@ -62,10 +62,10 @@ export default {
       // 先清除掉上一次的
       this.$refs.outputTabs.removeResultTab();
       const content = this.$refs.editorTabs.getContent();
-      console.log(content);
+      // console.log(content);
       const that = this;
       that.$api.post('/exec/sql', { sourceId: 1, sql: content }, (res) => {
-        console.log(res);
+        // console.log(res);
         if(res.status === 200) {
           const data = res.data.data;
           const code = res.data.code;
@@ -73,7 +73,7 @@ export default {
             for(let i = 0; i < data.length; i++) {
               const list = data[i]['resultList'];
               const columns = data[i]['columns'];
-              console.log(list);
+              // console.log(list);
               // const tableHeader = that.$_.map(columns, 'name');
               // console.log(tableHeader);
               this.addResultTab(columns, list);
