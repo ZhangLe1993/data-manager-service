@@ -56,7 +56,7 @@ export default {
       // console.log(schemaItem);
       let newTabName = ++this.tabIndex + '';
       this.editableTabs.push({
-        title: 'Query ' + schemaItem.name + ' ',
+        title: 'SQL ' + schemaItem.name + ' ',
         name: newTabName,
         closable: true,
         schemaItem: schemaItem,
@@ -90,12 +90,22 @@ export default {
     },
     /**
      * 切换选项卡
-     * @param tabs
+     * @param tab
      */
-    switchTab(tabs) {
+    switchTab(tab) {
       // 更改当前选中的选项卡
-      this.activeName = tabs.name;
-      this.selectSchemaItem = tabs.schemaItem;
+      // this.activeName = tab.name;
+      this.selectSchemaItem = tab.schemaItem;
+      let tabs = this.editableTabs;
+      tabs.forEach((tabItem, index) => {
+        if (tabItem.name === tab.name) {
+          let selectTab = tabs[index];
+          if (selectTab) {
+            this.activeName = selectTab.name;
+            this.selectSchemaItem = selectTab.schemaItem;
+          }
+        }
+      });
     },
   }
 }

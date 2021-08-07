@@ -60,6 +60,7 @@ export default {
       this.$refs.editorTabs.addTab(node);
     },
     run() {
+      console.log(this.schemaItem);
       // 先清除掉上一次的
       this.$refs.outputTabs.removeResultTab();
       const content = this.$refs.editorTabs.getContent();
@@ -68,7 +69,7 @@ export default {
         return;
       }
       const that = this;
-      that.$api.post('/exec/sql', { sourceId: 1, sql: content }, (res) => {
+      that.$api.post('/exec/sql', { sourceId: this.schemaItem.id, sql: content }, (res) => {
         // console.log(res);
         if(res.status === 200) {
           const data = res.data.data;

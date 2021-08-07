@@ -9,6 +9,9 @@ import sqlFormatter from 'sql-formatter';
 
 export default {
     name: "AceEditor",
+    props: {
+      item: Object
+    },
     components: {
         editor: require('vue2-ace-editor'),
     },
@@ -35,7 +38,11 @@ export default {
         }
     },
     mounted () {
-      this.content = '';
+      if(this.item !== undefined &&  this.item !== null &&  this.item['title'] !== undefined &&  this.item['title'] !== null &&  this.item['title'].trim() !== '') {
+        this.content = 'SELECT * FROM `' + this.item.title.replace("Query ", "") + "`";
+      } else {
+        this.content = '';
+      }
     },
 }
 </script>

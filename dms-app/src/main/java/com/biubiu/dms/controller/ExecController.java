@@ -38,4 +38,20 @@ public class ExecController {
             return new ResponseEntity<>(ImmutableMap.of("code", "500", "data", e.getMessage()), HttpStatus.OK);
         }
     }
+
+    /**
+     * 内部接口 专门用来执行敏感操作
+     * @param executeSql
+     * @return
+     */
+    @PostMapping(value = "/sensitive/sql", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> executeSensitiveSql(@Valid @RequestBody ViewExecuteSql executeSql) {
+        try {
+            String msg = execService.executeSensitiveSql(executeSql);
+            return new ResponseEntity<>(ImmutableMap.of("code", "200", "data", msg), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("", e);
+            return new ResponseEntity<>(ImmutableMap.of("code", "500", "data", e.getMessage()), HttpStatus.OK);
+        }
+    }
 }

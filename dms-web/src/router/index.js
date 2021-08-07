@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Index from '../views/Index.vue'
 import Home from '../views/Home'
+import EditTableComponent from "@/components/EditTableComponent";
 
 Vue.use(VueRouter);
 
@@ -11,6 +12,12 @@ const routes = [
         name: 'Index',
         component: Index,
         meta:  {title: '数据库管理平台'},
+    },
+    {
+        path: '/editTable',
+        name: 'EditTableComponent',
+        component: EditTableComponent,
+        meta:  {title: '可编辑表格示例'},
     },
     {
         path: '/index',

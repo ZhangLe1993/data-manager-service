@@ -118,6 +118,20 @@ public class SqlUtils {
         }
     }
 
+    public void executeSensitive(String sql) throws ServerException {
+        sql = filterAnnotate(sql);
+        if (isQueryLogEnable) {
+            String md5 = MD5Util.getMD5(sql, true, 16);
+            sqlLogger.info("{} execute for sql:{}", md5, formatSql(sql));
+        }
+        try {
+            jdbcTemplate().execute(sql);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new ServerException(e.getMessage());
+        }
+    }
+
     @Cacheable(value = "query", keyGenerator = "keyGenerator", sync = true)
     public PaginateWithQueryColumns syncQuery4Paginate(String sql, Integer pageNo, Integer pageSize, Integer totalCount, Integer limit, Set<String> excludeColumns) throws Exception {
         if (null == pageNo || pageNo < 1) {
@@ -635,7 +649,11 @@ public class SqlUtils {
                 return columnList;
             }
             while (rs.next()) {
-                columnList.add(new QueryColumn(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME")));
+                QueryColumn queryColumn = new QueryColumn(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"));
+                queryColumn.setNullAble(rs.getString("IS_NULLABLE"));
+                queryColumn.setComment(rs.getString("REMARKS"));
+                queryColumn.setSize(rs.getString("COLUMN_SIZE"));
+                columnList.add(queryColumn);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

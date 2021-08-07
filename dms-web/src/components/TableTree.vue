@@ -11,7 +11,7 @@
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.8)"
           class="filter-tree"
-          :data="data"
+          :data="treeData"
           :props="defaultProps"
           :default-expanded-keys="defaultExpandedKeys"
           :load="loadNode"
@@ -30,17 +30,23 @@
     </div>
     <v-contextmenu ref="contextmenu">
       <!--编辑和删除Node-->
-      <v-contextmenu-item v-if="isTableClick" >新查询</v-contextmenu-item>
-      <v-contextmenu-item v-if="isTableClick" >设计表</v-contextmenu-item>
-      <v-contextmenu-item v-if="isTableClick" >重命名</v-contextmenu-item>
+      <v-contextmenu-item v-if="isTableClick" @click="addEditTab(currentRightClickNodeData)">新查询</v-contextmenu-item>
+      <v-contextmenu-item v-if="isTableClick" @click="openDesignTableDialog">设计表</v-contextmenu-item>
+      <v-contextmenu-item v-if="isTableClick" @click="openRenameTableDrawer">重命名</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" >删除表</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" >清空表</v-contextmenu-item>
     </v-contextmenu>
+
+    <!--  -->
+    <RenameTableDrawer :dialog="renameDialogVisible" :loading="renameDialogSubmitLoading" :cancelForm="cancelRenameTableDrawerForm" :form="renameDialogForm" :currentRightClickNodeData="currentRightClickNodeData" :changeLoading="changeLoading" :refreshTree="refreshTree"></RenameTableDrawer>
+
+    <DesignTable v-if="designTableVisible" :designTableVisible="designTableVisible" :closeDialog="closeDesignTableDialog" :tableInfo="currentRightClickNodeData"></DesignTable>
   </div>
 </template>
 
 <script>
-
+import RenameTableDrawer from "@/components/RenameTableDrawer";
+import DesignTable from "@/components/DesignTable";
 export default {
   name: "TableTree",
   props: {
@@ -49,13 +55,20 @@ export default {
     schemaItem: Object,
   },
   components: {
-
+    RenameTableDrawer: RenameTableDrawer,
+    DesignTable: DesignTable,
   },
   data() {
     return {
+      renameDialogVisible: false,
+      renameDialogSubmitLoading: false,
+      renameDialogForm: {
+        name: '',
+      },
+      designTableVisible: false,
       filterText: '',
       defaultExpandedKeys: [1],
-      data: [],
+      treeData: [],
       defaultProps: {
         children: 'children',
         label: 'name',
@@ -63,19 +76,9 @@ export default {
         icon: 'icon',
       },
       loading: true,
-      connectFormVisible: false,
-      connectForm: {
-        id: 0,
-        name: '',
-        description: '',
-        host: '',
-        port : '',
-        username : '',
-        password : '',
-      },
       isTableClick: false,
       isFieldClick: false,
-      currentClickNodeData: null,
+      currentRightClickNodeData: null,
     };
   },
   watch: {
@@ -105,10 +108,10 @@ export default {
           const target = [];
           for(var i = 0; i < fields.length; i++) {
             const obj = fields[i];
+            let icon = "iconfont icon-xitongmorenziduan";
             if(fieldInfo.primaryKeys.includes(obj.name)) {
-              target.push({schemaId: data.schemaId, icon: 'iconfont icon-yuechi', type: 'field', schema: data.schema, name: obj.name, leaf: true });
+              icon = "iconfont icon-yuechi"
             } else {
-              let icon = "iconfont icon-xitongmorenziduan";
               if(obj['type'].indexOf('INT') !== -1 || obj['type'].indexOf('NUMBER') !== -1) {
                 icon = "iconfont icon-int"
               }
@@ -118,19 +121,25 @@ export default {
               if(obj['type'].indexOf('TEXT') !== -1) {
                 icon = "iconfont icon-wenben"
               }
-              if(obj['type'].indexOf('TIMESTAMP') !== -1) {
+              if(obj['type'].indexOf('TIME') !== -1 || obj['type'].indexOf('DATE') !== -1) {
                 icon = "iconfont icon-riqi"
               }
               if(obj['type'].indexOf('BOOLEAN') !== -1) {
                 icon = "iconfont icon-a-Group16"
               }
-              target.push({schemaId: data.schemaId, icon: icon, type: 'field', schema: data.schema, name: obj.name, leaf: true });
+              const callNull = obj.nullAble === 'YES';
+              target.push({ schemaId: data.schemaId, icon: icon, type: 'field', schema: data.schema, name: obj.name, comment: obj.comment, callNull: callNull, len: obj.size, leaf: true  });
             }
           }
           return resolve(target);
         default:
           return resolve([]);
       }
+    },
+    async refreshTree() {
+      this.loading = true;
+      await this.renderTable();
+      this.loading = false;
     },
     async renderTable() {
       const res = await this.getTables(this.schemaItem.id, this.schemaItem.schema);
@@ -142,7 +151,7 @@ export default {
           target.push({schemaId: this.schemaItem.id, icon: 'iconfont icon-biao',type: 'table', schema: this.schemaItem.schema, name: obj.name, children: []});
         }
       }
-      this.data = target;
+      this.treeData = target;
     },
 
     async getTables(id, schema) {
@@ -167,43 +176,38 @@ export default {
     },
     // eslint-disable-next-line no-unused-vars
     handleContextMenu(event, data, node) {
-      // console.log(data);
       const postition = {
-        top: event.clientY,
-        left: event.clientX,
+        top: event.clientY + 20,
+        left: event.clientX + 20,
       }
-      this.isItemClick = true;
       if(data.type === 'table') {
         this.isTableClick = true;
         this.isFieldClick = false;
-      } else {
-        this.isTableClick = false;
-        this.isFieldClick = true;
+        this.currentRightClickNodeData = data;
+        this.$refs.contextmenu.show(postition);
       }
-      this.currentClickNodeData = data;
-      this.$refs.contextmenu.show(postition);
-    },
-    handleShow(event) {
-      // var DOM = event.currentTarget;
-      // 获取节点距离浏览器视口的高度
-      var top = event.clientY;
-      // 获取节点距离浏览器视口的宽度
-      var left = event.clientX;
-      const postition = {
-        top: top,
-        left: left,
-      }
-      this.isItemClick = false;
-      this.$refs.contextmenu.show(postition);
-      this.isNodeClick = false;
-      this.currentClickNodeData = null;
     },
     handleHide() {
       this.$refs.contextmenu.hide();
     },
-    refresh() {
-
+    openRenameTableDrawer() {
+      this.renameDialogVisible = true;
+      this.renameDialogForm.name = this.currentRightClickNodeData.name;
     },
+    cancelRenameTableDrawerForm() {
+      this.renameDialogVisible = false;
+      this.renameDialogSubmitLoading = false;
+    },
+    changeLoading(loading) {
+      this.renameDialogSubmitLoading = loading;
+    },
+    openDesignTableDialog() {
+      console.log('111');
+      this.designTableVisible = true;
+    },
+    closeDesignTableDialog() {
+      this.designTableVisible = false;
+    }
 
   },
 }
@@ -214,35 +218,20 @@ export default {
   background-color: #2c3e50 !important;
 }
 .v-contextmenu {
+  width: 100px !important;
+  text-align: center !important;
   padding-left: 10px !important;
   padding-right:10px !important;
+}
+.v-contextmenu .v-contextmenu-item {
+  line-height: 2 !important;
 }
 
 .el-loading-mask {
   height: calc(100vh - 145px)
 }
 
-/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
-::-webkit-scrollbar
-{
-  width: 5px;
-  height: 5px;
-  background-color: #F5F5F5;
-}
-
-/*定义滚动条轨道 内阴影+圆角*/
-::-webkit-scrollbar-track
-{
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-  border-radius: 10px;
-  background-color: #F5F5F5;
-}
-
-/*定义滑块 内阴影+圆角*/
-::-webkit-scrollbar-thumb
-{
-  border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-  background-color: #555;
+.manage .el-tree-node {
+  color: #000000;
 }
 </style>

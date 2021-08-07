@@ -9,7 +9,7 @@
         :closable="item.closable"
     >
       <AceEditor v-if="item.name === '1'" :ref="item.name"></AceEditor>
-      <BaseEditor v-if="item.name !== '1'" :ref="item.name" :divId="item.divId" :name="item.name"></BaseEditor>
+      <BaseEditor v-if="item.name !== '1'" :ref="item.name" :divId="item.divId" :name="item.name" :item="item"></BaseEditor>
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -35,7 +35,6 @@ export default {
       tabIndex: 1,
       // 激活的标签
       activeName: 1,
-      getIndex: 0,
     }
   },
   methods: {
@@ -43,7 +42,7 @@ export default {
       // console.log(node);
       let newTabName = ++this.tabIndex + '';
       this.editableTabs.push({
-        title: node.name,
+        title: 'Query ' + node.name,
         name: newTabName,
         closable: true,
         divId: "editor_" + newTabName,
@@ -51,7 +50,6 @@ export default {
       });
       this.editableTabsValue = newTabName;
       this.activeName = newTabName;
-      this.getIndex = node.name;
     },
     removeTab(targetName) {
       let tabs = this.editableTabs;

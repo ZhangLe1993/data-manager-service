@@ -22,8 +22,8 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="onCancel">取 消</el-button>
-      <el-button type="primary" @click="onSubmit('form')">确 定</el-button>
-      <el-button type="primary" @click="testConnection('form')">测 试</el-button>
+      <el-button type="primary" @click="onSubmit('form')" :loading="submitLoading">{{ submitLoading ? '提交中 ...' : '确 定' }}</el-button>
+      <el-button type="primary" @click="testConnection('form')" :loading="testLoading">{{ testLoading ? '测试中 ...' : '测 试' }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -44,6 +44,8 @@ export default {
   data() {
     return {
       formLabelWidth: '80px',
+      testLoading: false,
+      submitLoading: false,
       rules: {
         name: [
           { required: true, message: '请输入实例名称', trigger: 'blur' },
@@ -75,6 +77,7 @@ export default {
       }
     },
     testConnection(formName) {
+      this.testLoading = true;
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
           const that = this;
@@ -90,11 +93,16 @@ export default {
             } else {
               this.openLayer('消息', res.data, 'error');
             }
+            this.testLoading = false;
           });
+        } else {
+          this.testLoading = false;
+          return false;
         }
       });
     },
     onSubmit(formName) {
+      this.submitLoading = true;
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
           const that = this;
@@ -115,6 +123,7 @@ export default {
               } else {
                 this.openLayer('消息', res.data, 'error');
               }
+              this.submitLoading = false;
             });
           } else {
             // 更新
@@ -130,9 +139,11 @@ export default {
               } else {
                 this.openLayer('消息', res.data, 'error');
               }
+              this.submitLoading = false;
             });
           }
         } else {
+          this.submitLoading = false;
           // console.log('error submit!!');
           return false;
         }

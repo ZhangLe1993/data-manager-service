@@ -254,7 +254,7 @@ public class JdbcDataSource {
                 // ignore
                 // 暂时不考虑带版本好的数据库 链接
                 // druidDataSource.setDriverClassName(CustomDataSourceUtils.getInstance(jdbcUrl, dbVersion).getDriver());
-                // String path = System.getenv("DAVINCI3_HOME") + File.separator  + String.format(Consts.PATH_EXT_FORMATER, jdbcSourceInfo.getDatabase(), dbVersion);
+                // String path = System.getenv("dms_home") + File.separator  + String.format(Consts.PATH_EXT_FORMATER, jdbcSourceInfo.getDatabase(), dbVersion);
                 // druidDataSource.setDriverClassLoader(ExtendedJdbcClassLoader.getExtJdbcClassLoader(path));
             }
             druidDataSource.setUrl(jdbcUrl);

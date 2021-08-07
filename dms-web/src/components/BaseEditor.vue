@@ -1,6 +1,6 @@
 <template>
   <div :id="divId">
-    <AceEditor :ref="name"></AceEditor>
+    <AceEditor :ref="name" :name="name" :item="item"></AceEditor>
   </div>
 </template>
 
@@ -11,6 +11,7 @@ export default {
   props: {
     divId: String,
     name: String,
+    item: Object,
   },
   components: {
     AceEditor : AceEditor,

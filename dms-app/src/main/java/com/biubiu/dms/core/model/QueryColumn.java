@@ -10,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 public class QueryColumn {
     private String name;
     private String type;
+    private String comment;
+    private String nullAble;
+    private String size;
 
     public QueryColumn(String name, String type) {
         if (StringUtils.isEmpty(name)) {
@@ -20,6 +23,21 @@ public class QueryColumn {
         }
         this.name = name;
         this.type = type.toUpperCase();
+    }
+
+    public void setNullAble(String nullAble) {
+        if (StringUtils.isEmpty(nullAble)) {
+            throw new ServerException("Empty column nullAble");
+        }
+        this.nullAble = nullAble;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 
     public void setType(String type) {
