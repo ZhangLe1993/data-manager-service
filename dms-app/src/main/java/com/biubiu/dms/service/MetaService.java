@@ -31,8 +31,7 @@ public class MetaService {
     private ConnectionDao connectionDao;
 
 
-
-    private boolean testConnection(SourceConfig config) {
+    public boolean testConnection(SourceConfig config) {
         return sqlUtils.init(
                 config.getUrl(),
                 config.getUsername(),

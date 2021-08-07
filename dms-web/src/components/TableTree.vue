@@ -1,11 +1,15 @@
 <template>
   <div>
-    <div :class="['box', theme]" ref="box" v-on:contextmenu.prevent="handleShow($event)" style="min-height: 785px">
+    <div :class="['box', theme]" ref="box" style="height: calc(100vh - 145px); overflow: auto">
       <el-input
           placeholder="输入关键字进行过滤"
           v-model="filterText">
       </el-input>
       <el-tree
+          v-loading="loading"
+          element-loading-text="拼命加载中"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.8)"
           class="filter-tree"
           :data="data"
           :props="defaultProps"
@@ -80,7 +84,9 @@ export default {
     }
   },
   async mounted() {
+    this.loading = true;
     await this.renderTable();
+    this.loading = false;
   },
   methods: {
     filterNode(value, data) {
@@ -100,9 +106,25 @@ export default {
           for(var i = 0; i < fields.length; i++) {
             const obj = fields[i];
             if(fieldInfo.primaryKeys.includes(obj.name)) {
-              target.push({schemaId: data.schemaId, icon: 'iconfont iconkey', type: 'field', schema: data.schema, name: obj.name, leaf: true });
+              target.push({schemaId: data.schemaId, icon: 'iconfont icon-yuechi', type: 'field', schema: data.schema, name: obj.name, leaf: true });
             } else {
-              target.push({schemaId: data.schemaId, icon: 'el-icon-coordinate', type: 'field', schema: data.schema, name: obj.name, leaf: true });
+              let icon = "iconfont icon-xitongmorenziduan";
+              if(obj['type'].indexOf('INT') !== -1 || obj['type'].indexOf('NUMBER') !== -1) {
+                icon = "iconfont icon-int"
+              }
+              if(obj['type'].indexOf('VARCHAR') !== -1) {
+                icon = "iconfont icon-field"
+              }
+              if(obj['type'].indexOf('TEXT') !== -1) {
+                icon = "iconfont icon-wenben"
+              }
+              if(obj['type'].indexOf('TIMESTAMP') !== -1) {
+                icon = "iconfont icon-riqi"
+              }
+              if(obj['type'].indexOf('BOOLEAN') !== -1) {
+                icon = "iconfont icon-a-Group16"
+              }
+              target.push({schemaId: data.schemaId, icon: icon, type: 'field', schema: data.schema, name: obj.name, leaf: true });
             }
           }
           return resolve(target);
@@ -117,7 +139,7 @@ export default {
       for(var i = 0; i < tableAndViewList.length; i++ ) {
         const obj = tableAndViewList[i];
         if(obj.type === 'TABLE') {
-          target.push({schemaId: this.schemaItem.id, icon: 'iconfont icontable',type: 'table', schema: this.schemaItem.schema, name: obj.name, children: []});
+          target.push({schemaId: this.schemaItem.id, icon: 'iconfont icon-biao',type: 'table', schema: this.schemaItem.schema, name: obj.name, children: []});
         }
       }
       this.data = target;
@@ -180,36 +202,9 @@ export default {
       this.$refs.contextmenu.hide();
     },
     refresh() {
-      this.search();
-    },
-    search() {
-      this.loading = true;
-      const that = this;
-      that.$api.get('/connection', { }, (res) => {
-        this.data = res.data;
-      });
+
     },
 
-    handleConnectFormCancel() {
-      this.connectFormVisible = false;
-      this.connectForm = {id: 0, name: '', description: '', host : '', port : '', username : '', password : '' };
-    },
-
-
-    openLayer(title, msg, type) {
-      if(type === 'error') {
-        this.$notify.error({
-          title: title,
-          message: msg
-        });
-      } else {
-        this.$notify({
-          title: title,
-          message: msg,
-          type: type
-        });
-      }
-    },
   },
 }
 </script>
@@ -221,5 +216,33 @@ export default {
 .v-contextmenu {
   padding-left: 10px !important;
   padding-right:10px !important;
+}
+
+.el-loading-mask {
+  height: calc(100vh - 145px)
+}
+
+/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+::-webkit-scrollbar
+{
+  width: 5px;
+  height: 5px;
+  background-color: #F5F5F5;
+}
+
+/*定义滚动条轨道 内阴影+圆角*/
+::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+  background-color: #F5F5F5;
+}
+
+/*定义滑块 内阴影+圆角*/
+::-webkit-scrollbar-thumb
+{
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: #555;
 }
 </style>

@@ -4,26 +4,26 @@
     <el-form :model="form" :rules="rules" ref="form">
 
       <el-form-item label="实例名称" :label-width="formLabelWidth" prop="name">
-        <el-input v-model="form.name" auto-complete="off"></el-input>
+        <el-input v-model="form.name" auto-complete="off" placeholder="dms_prod"></el-input>
       </el-form-item>
 
       <el-form-item label="连接串" :label-width="formLabelWidth" prop="url">
-        <el-input v-model="form.url" auto-complete="off"></el-input>
+        <el-input v-model="form.url" auto-complete="off" placeholder="jdbc:mysql://127.0.0.1:3306/proxy?useSSL=false&useUnicode=true"></el-input>
       </el-form-item>
 
       <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
-        <el-input v-model="form.username" auto-complete="off"></el-input>
+        <el-input v-model="form.username" auto-complete="off" placeholder="root"></el-input>
       </el-form-item>
 
       <el-form-item label="密码" :label-width="formLabelWidth" prop="password">
-        <el-input v-model="form.password" auto-complete="off"></el-input>
+        <el-input v-model="form.password" auto-complete="off" placeholder="123456"></el-input>
       </el-form-item>
 
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="onCancel">取 消</el-button>
       <el-button type="primary" @click="onSubmit('form')">确 定</el-button>
-      <el-button type="primary" @click="onSubmit('form')">测 试</el-button>
+      <el-button type="primary" @click="testConnection('form')">测 试</el-button>
     </div>
   </el-dialog>
 </template>
@@ -50,7 +50,7 @@ export default {
           { min: 1, max: 500, message: '长度在 1 到 255 个字符', trigger: 'blur' }
         ],
         url: [
-          { required: true, message: '例如 jdbc:mysql://127.0.0.1:3306/test?xxxxx', trigger: 'blur' },
+          { required: true, message: '例如 jdbc:mysql://127.0.0.1:3306/proxy?useSSL=false&useUnicode=true', trigger: 'blur' },
         ],
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -73,6 +73,26 @@ export default {
           type: type
         });
       }
+    },
+    testConnection(formName) {
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          const that = this;
+          const formData = that.form;
+          const config = { url : formData.url, username : formData.username, password : formData.password };
+          // 新增
+          that.$api.post('/separate/connection/test', JSON.stringify(config), (res) => {
+            if(res !== undefined && res.status !== undefined && res.status === 200) {
+              this.openLayer('消息', res.data, 'success');
+              // 关闭弹出层
+              // this.onCancel();
+              // this.listRefresh();
+            } else {
+              this.openLayer('消息', res.data, 'error');
+            }
+          });
+        }
+      });
     },
     onSubmit(formName) {
       this.$refs[formName].validate(async (valid) => {

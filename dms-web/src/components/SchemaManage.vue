@@ -21,7 +21,7 @@
 
               <i @click="addSelectTab" class="el-icon-circle-plus-outline select" style="float:left;margin-top:11px;margin-right:80px;cursor: pointer;">新窗口</i>
 
-              <i @click="format" class="iconfont iconformat select" style="float:left;margin-top:6px;cursor: pointer;margin-right:250px;">格式化</i>
+              <i @click="format" class="iconfont icon-format select" style="float:left;margin-top:6px;cursor: pointer;margin-right:250px;">格式化</i>
 
               <el-divider direction="vertical"></el-divider>
               <el-divider direction="vertical"></el-divider>

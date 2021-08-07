@@ -1,0 +1,177 @@
+{
+  "id": "2728578",
+  "name": "dms-web",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "8210852",
+      "name": "导出",
+      "font_class": "daochu",
+      "unicode": "e697",
+      "unicode_decimal": 59031
+    },
+    {
+      "icon_id": "10673732",
+      "name": "计算得出字段",
+      "font_class": "lujing",
+      "unicode": "e651",
+      "unicode_decimal": 58961
+    },
+    {
+      "icon_id": "11219573",
+      "name": "导出",
+      "font_class": "daochu1",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "11390041",
+      "name": "日志",
+      "font_class": "rizhi",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "12290572",
+      "name": "系统默认字段",
+      "font_class": "xitongmorenziduan",
+      "unicode": "e9d3",
+      "unicode_decimal": 59859
+    },
+    {
+      "icon_id": "13109658",
+      "name": "长文本字段",
+      "font_class": "changwenbenziduan",
+      "unicode": "e769",
+      "unicode_decimal": 59241
+    },
+    {
+      "icon_id": "13578253",
+      "name": "日期字段icon-16",
+      "font_class": "riqiziduanicon-",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "15678728",
+      "name": "字段",
+      "font_class": "field",
+      "unicode": "e759",
+      "unicode_decimal": 59225
+    },
+    {
+      "icon_id": "16220503",
+      "name": "唯一标识字段",
+      "font_class": "weiyibiaoshiziduan",
+      "unicode": "e6e1",
+      "unicode_decimal": 59105
+    },
+    {
+      "icon_id": "18708953",
+      "name": "整数类型字段",
+      "font_class": "int",
+      "unicode": "e775",
+      "unicode_decimal": 59253
+    },
+    {
+      "icon_id": "19838276",
+      "name": "自动生成字段",
+      "font_class": "zidongshengchengziduan",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "19846465",
+      "name": "自动生成字段",
+      "font_class": "text-style-one",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "20398108",
+      "name": "添加自增字段",
+      "font_class": "add_increase_column",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
+      "icon_id": "21785147",
+      "name": "BI-文本字段",
+      "font_class": "wenben",
+      "unicode": "e64e",
+      "unicode_decimal": 58958
+    },
+    {
+      "icon_id": "21785152",
+      "name": "BI-日期字段",
+      "font_class": "riqi",
+      "unicode": "e64f",
+      "unicode_decimal": 58959
+    },
+    {
+      "icon_id": "22704188",
+      "name": "时间型字段",
+      "font_class": "Tleixingziduanbeifen",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "23139561",
+      "name": "布尔字段",
+      "font_class": "a-Group16",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "8019722",
+      "name": "format",
+      "font_class": "format",
+      "unicode": "e6da",
+      "unicode_decimal": 59098
+    },
+    {
+      "icon_id": "9499954",
+      "name": "表",
+      "font_class": "biao",
+      "unicode": "e71b",
+      "unicode_decimal": 59163
+    },
+    {
+      "icon_id": "10491262",
+      "name": "数据库 大数据",
+      "font_class": "shujukudashuju",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "11258040",
+      "name": "数据库",
+      "font_class": "shujuku",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "11482216",
+      "name": "数据库",
+      "font_class": "shujuku1",
+      "unicode": "e633",
+      "unicode_decimal": 58931
+    },
+    {
+      "icon_id": "20592723",
+      "name": "表",
+      "font_class": "biao1",
+      "unicode": "e760",
+      "unicode_decimal": 59232
+    },
+    {
+      "icon_id": "7159341",
+      "name": "钥匙",
+      "font_class": "yuechi",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    }
+  ]
+}

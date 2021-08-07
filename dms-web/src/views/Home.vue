@@ -18,7 +18,7 @@
           :closable="item.closable"
       >
         <!-- 工作台 -->
-        <Workbench v-if=" item.name === '1'" :addTab="addTab"></Workbench>
+        <Workbench v-if=" item.name === '1'" :addManageTab="addManageTab"></Workbench>
         <SchemaManage v-if="item.name !== '1'" :schemaItem="selectSchemaItem"> </SchemaManage>
       </el-tab-pane>
     </el-tabs>
@@ -52,7 +52,7 @@ export default {
     /**
      * 添加选项卡
      */
-    addTab(schemaItem) {
+    addManageTab(schemaItem) {
       // console.log(schemaItem);
       let newTabName = ++this.tabIndex + '';
       this.editableTabs.push({

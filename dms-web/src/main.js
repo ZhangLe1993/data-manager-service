@@ -6,7 +6,8 @@ import 'element-ui/lib/theme-chalk/index.css';
 import api from './service';
 import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
-
+/* 引入 阿里 icon */
+import './assets/iconfont/iconfont.css'
 /*
 * cnpm install --save axios
 * cnpm install --save element-ui

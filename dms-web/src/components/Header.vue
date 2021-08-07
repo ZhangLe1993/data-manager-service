@@ -2,7 +2,10 @@
   <el-row style="background-color: #000;">
     <el-col :span="24">
       <div style="padding:10px;text-align:left;">
-        <span style="margin-left:200px;letter-spacing:10px;font-size: 25px;color: #fff;font-family: Microsoft YaHei; font-weight: bold;font-style: italic;">DMS 数据库管理平台</span>
+        <span style="margin-left:200px;letter-spacing:10px;font-size: 25px;color: #fff;font-family: Microsoft YaHei; font-weight: bold;font-style: italic;">
+          <i class="iconfont icon-shujukudashuju" style="font-size: 25px;"></i>
+          DMS 数据库管理平台
+        </span>
       </div>
     </el-col>
     <!--<el-col :span="16">

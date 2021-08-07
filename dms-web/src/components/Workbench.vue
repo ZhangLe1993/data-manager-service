@@ -3,14 +3,14 @@
   <el-row align="middle" type="flex"  style="flex-wrap: wrap">
     <el-col :lg="{ span:6 }" v-for="(item) in schemaList" :key="item.id" :offset="0" class="card-col-wb">
 
-      <el-card @click.native="handleAddConnect" shadow="hover" class="card-add-btn" v-if="item['root'] !== undefined">
+      <el-card @click.native="handleAddSchema" shadow="hover" class="card-add-btn" v-if="item['root'] !== undefined">
         <i class="el-icon-plus" style="margin-top: 30px"></i>
       </el-card>
 
       <el-card @dblclick.native="doubleClick(item)" class="box-card" v-else>
         <div slot="header" class="clearfix">
-          <i class="el-icon-edit" style="cursor: pointer" @click="handleEditNode(item)">编辑</i> &nbsp;&nbsp;&nbsp;&nbsp;
-          <i class="el-icon-delete" style="cursor: pointer">删除</i>
+          <i class="el-icon-edit" style="cursor: pointer" @click="handleEditSchema(item)">编辑</i> &nbsp;&nbsp;&nbsp;&nbsp;
+          <i class="el-icon-delete" style="cursor: pointer" @click="handleDeleteSchema(item)">删除</i>
         </div>
         <div>
           <span class="word">
@@ -43,7 +43,7 @@ import Clipboard from 'clipboard'
 export default {
   name: "Workbench",
   props: {
-    addTab: Function,
+    addManageTab: Function,
   },
   components: {
     SeparateConnectForm: SeparateConnectForm,
@@ -67,32 +67,59 @@ export default {
     getConnectionList() {
       const that = this;
       that.$api.get('/separate/connection', { }, (res) => {
-        // this.data = res.data;
         let data = res.data;
         data.push(this.root);
         this.schemaList = data;
       });
     },
     refresh() {
-      // this.search();
+      this.getConnectionList();
     },
     handleConnectFormCancel() {
       this.connectFormVisible = false;
       this.connectForm = {id: 0, name: '',  url : '', username : '', password : '' };
     },
-    handleAddConnect() {
+    handleAddSchema() {
       this.connectTitle = '新增实例';
       // form 重置
       this.connectForm = {id: 0, name: '', url : '', username : '', password : '' };
       this.connectFormVisible = true;
     },
-    handleEditNode(item) {
+    handleEditSchema(item) {
       this.connectTitle = '编辑实例';
       this.connectForm = {id : item.id, name: item.name, url : item.url, username : item.username, password : item.password, };
       this.connectFormVisible = true;
     },
+    handleDeleteSchema(item) {
+      const that = this;
+      this.$confirm('此操作将永久删除该实例, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        that.$api.delete('/connection', {id : item.id}, (res) => {
+          if(res !== undefined && res.status !== undefined && res.status === 200) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.refresh();
+          } else {
+            this.$message({
+              type: 'info',
+              message: '删除失败'
+            });
+          }
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+    },
     doubleClick(item) {
-      this.addTab(item);
+      this.addManageTab(item);
     },
     copyText(e, text) {
       const clipboard = new Clipboard(e.target, { text: () => text })
@@ -116,7 +143,6 @@ export default {
   },
   mounted() {
     this.getConnectionList();
-    // console.log(this.schemaList)
   }
 
 }

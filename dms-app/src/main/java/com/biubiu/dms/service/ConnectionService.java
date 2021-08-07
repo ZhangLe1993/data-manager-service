@@ -48,6 +48,7 @@ public class ConnectionService {
                     String schema = StringUtils.substringAfterLast(pre, "/");
                     node.setSchema(schema);
                     node.setUrl(uri);
+                    node.setPassword(json.getString("password"));
                 }
                 node.setUsername(json.getString("username"));
                 target.add(node);

@@ -11,6 +11,7 @@ public class Node {
     private String icon;
     private String type;
     private String username;
+    private String password;
     private String schema;
     /*private Remote config;*/
     private String url;
