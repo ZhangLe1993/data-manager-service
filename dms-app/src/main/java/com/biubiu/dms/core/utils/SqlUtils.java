@@ -2,7 +2,6 @@ package com.biubiu.dms.core.utils;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.util.StringUtils;
-
 import com.biubiu.dms.core.consts.Consts;
 import com.biubiu.dms.core.enums.DataTypeEnum;
 import com.biubiu.dms.core.enums.SqlColumnEnum;
@@ -36,6 +35,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import static com.biubiu.dms.core.consts.Consts.*;
 import static com.biubiu.dms.core.enums.DataTypeEnum.*;
@@ -471,10 +471,10 @@ public class SqlUtils {
      * @return
      * @throws
      */
-    public List<QueryColumn> getTableList(String dbName) throws SourceException {
-        List<QueryColumn> tableList = null;
+    public List<QueryTable> getTableList(String dbName) throws SourceException {
+        List<QueryTable> tableList = null;
         Connection connection = null;
-        ResultSet tables = null;
+        ResultSet rs = null;
         try {
             connection = sourceUtils.getConnection(this.jdbcSourceInfo);
             if (null == connection) {
@@ -487,31 +487,58 @@ public class SqlUtils {
             } catch (Throwable t) {
                 // ignore
             }
-            tables = metaData.getTables(dbName, getDBSchemaPattern(schema), "%", TABLE_TYPES);
-            if (null == tables) {
+            rs = metaData.getTables(dbName, getDBSchemaPattern(schema), "%", TABLE_TYPES);
+            if (null == rs) {
                 return tableList;
             }
             tableList = new ArrayList<>();
-            while (tables.next()) {
-                String name = tables.getString(TABLE_NAME);
+            while (rs.next()) {
+                String name = rs.getString(TABLE_NAME);
                 if (!StringUtils.isEmpty(name)) {
                     String type = TABLE;
+                    String remarks = "";
+                    String engine = "";
                     try {
-                        type = tables.getString(TABLE_TYPE);
+                        type = rs.getString(TABLE_TYPE);
+                        remarks = rs.getString("REMARKS");
                     } catch (Exception e) {
                         // ignore
                     }
-                    tableList.add(new QueryColumn(name, type));
+                    tableList.add(new QueryTable(name, type, remarks));
                 }
             }
+            Map<String, QuerySchemaTableInfo> charsetMap = getTableCharset(dbName, tableList.stream().map(QueryTable::getName).collect(Collectors.toList()));
+            tableList.stream().peek(p -> {
+                QuerySchemaTableInfo schemaTableInfo = charsetMap.get(p.getName());
+                p.setCharset(schemaTableInfo.getCharacter());
+                p.setEngine(schemaTableInfo.getEngine());
+                p.setAutoIncrementNum(schemaTableInfo.getAutoIncrementNum());
+            }).collect(Collectors.toList());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return tableList;
         } finally {
             SourceUtils.releaseConnection(connection);
-            SourceUtils.closeResult(tables);
+            SourceUtils.closeResult(rs);
         }
         return tableList;
+    }
+
+
+    private Map<String, QuerySchemaTableInfo> getTableCharset(String dbName, List<String> tables) throws Exception {
+        String sql = "SELECT" +
+                "  CCSA.character_set_name, T.table_name, T.engine, T.auto_increment " +
+                " FROM" +
+                "  information_schema.`TABLES` T," +
+                "  information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA" +
+                " WHERE" +
+                "  CCSA.collation_name = T.table_collation" +
+                "  AND T.table_schema = '" + dbName + "'" +
+                "  AND T.table_name in (";
+        String tablesName = "'" + org.apache.commons.lang3.StringUtils.join(tables, "','") + "')";
+        PaginateWithQueryColumns paginateWithQueryColumns = syncQuery4Paginate(sql + tablesName, null, null, null, tables.size(),null);
+        List<Map<String, Object>> list = paginateWithQueryColumns.getResultList();
+        return list.stream().collect(Collectors.toMap(p -> p.get("TABLE_NAME").toString(), p -> new QuerySchemaTableInfo(p.get("ENGINE").toString(), p.get("CHARACTER_SET_NAME").toString(), Long.valueOf(p.get("AUTO_INCREMENT").toString())), (key1, key2) -> key2));
     }
 
     private String getDBSchemaPattern(String schema) {
@@ -556,8 +583,10 @@ public class SqlUtils {
             if (null != connection) {
                 DatabaseMetaData metaData = connection.getMetaData();
                 List<String> primaryKeys = getPrimaryKeys(dbName, tableName, metaData);
+                List<QueryExportKeys> exportedKeys = getExportedKeys(dbName, tableName, metaData);
                 List<QueryColumn> columns = getColumns(dbName, tableName, metaData);
-                tableInfo = new TableInfo(tableName, primaryKeys, columns);
+                List<QueryIndex> indexs = getIndexInfo(dbName, tableName, metaData);
+                tableInfo = new TableInfo(tableName, primaryKeys, exportedKeys, columns, indexs);
             }
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -628,6 +657,66 @@ public class SqlUtils {
         return primaryKeys;
     }
 
+    /**
+     * 获得一个表的外键信息
+     * @param dbName
+     * @param tableName
+     * @param metaData
+     */
+    public List<QueryExportKeys> getExportedKeys(String dbName, String tableName, DatabaseMetaData metaData) {
+        ResultSet rs = null;
+        List<QueryExportKeys> exportKeys = new ArrayList<>();
+        try {
+            rs = metaData.getExportedKeys(null, dbName, tableName);
+            while (rs.next()) {
+                QueryExportKeys queryExportKeys = new QueryExportKeys();
+                // String pkTableCat = rs.getString("PKTABLE_CAT");        //主键表的目录（可能为空）
+                // String pkTableSchem = rs.getString("PKTABLE_SCHEM");    //主键表的架构（可能为空）
+                queryExportKeys.setPkTableName(rs.getString("PKTABLE_NAME"));      //主键表名
+
+                queryExportKeys.setPkColumnName(rs.getString("PKCOLUMN_NAME"));    //主键列名
+                // String fkTableCat = rs.getString("FKTABLE_CAT");                 //外键的表的目录（可能为空）出口（可能为null）
+                // String fkTableSchem = rs.getString("FKTABLE_SCHEM");             //外键表的架构（可能为空）出口（可能为空）
+                queryExportKeys.setFkTableName(rs.getString("FKTABLE_NAME"));      //外键表名
+                queryExportKeys.setFkColumnName(rs.getString("FKCOLUMN_NAME"));     //外键列名
+                // short keySeq = rs.getShort("KEY_SEQ");                  //序列号（外键内值1表示第一列的外键，值2代表在第二列的外键）。
+                /**
+                 * hat happens to foreign key when primary is updated:
+                 * importedNoAction - do not allow update of primary key if it has been imported
+                 * importedKeyCascade - change imported key to agree with primary key update
+                 * importedKeySetNull - change imported key to NULL if its primary key has been updated
+                 * importedKeySetDefault - change imported key to default values if its primary key has been updated
+                 * importedKeyRestrict - same as importedKeyNoAction (for ODBC 2.x compatibility)
+                 */
+                queryExportKeys.setUpdateRule(rs.getShort("UPDATE_RULE"));
+                /**
+                 * What happens to the foreign key when primary is deleted.
+                 * importedKeyNoAction - do not allow delete of primary key if it has been imported
+                 * importedKeyCascade - delete rows that import a deleted key
+                 * importedKeySetNull - change imported key to NULL if its primary key has been deleted
+                 * importedKeyRestrict - same as importedKeyNoAction (for ODBC 2.x compatibility)
+                 * importedKeySetDefault - change imported key to default if its primary key has been deleted
+                 */
+                queryExportKeys.setDelRule(rs.getShort("DELETE_RULE"));
+                queryExportKeys.setFkName(rs.getString("FK_NAME")); //外键的名称（可能为空）
+                queryExportKeys.setPkName(rs.getString("PK_NAME"));//主键的名称（可能为空）
+                /**
+                 * can the evaluation of foreign key constraints be deferred until commit
+                 * importedKeyInitiallyDeferred - see SQL92 for definition
+                 * importedKeyInitiallyImmediate - see SQL92 for definition
+                 * importedKeyNotDeferrable - see SQL92 for definition
+                 */
+                // short deferRability = rs.getShort("DEFERRABILITY");
+                exportKeys.add(queryExportKeys);
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            SourceUtils.closeResult(rs);
+        }
+        return exportKeys;
+    }
+
 
     /**
      * 获取数据表列
@@ -645,14 +734,36 @@ public class SqlUtils {
                 dbName = null;
             }
             rs = metaData.getColumns(dbName, null, tableName, "%");
+
             if (rs == null) {
                 return columnList;
             }
             while (rs.next()) {
                 QueryColumn queryColumn = new QueryColumn(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"));
+                /**
+                 *  0 (columnNoNulls) - 该列不允许为空
+                 *  1 (columnNullable) - 该列允许为空
+                 *  2 (columnNullableUnknown) - 不确定该列是否为空
+                 */
+                // int nullAble = rs.getInt("NULLABLE");  //是否允许为null
+                // ISO规则用来确定某一列的是否可为空(等同于NULLABLE的值:[ 0:'YES'; 1:'NO'; 2:''; ])  返回 YES / NO
                 queryColumn.setNullAble(rs.getString("IS_NULLABLE"));
+                // 备注
                 queryColumn.setComment(rs.getString("REMARKS"));
+                //列大小
                 queryColumn.setSize(rs.getString("COLUMN_SIZE"));
+                // 是否自动增长 返回 YES / NO
+                queryColumn.setAutoIncrement(rs.getString("IS_AUTOINCREMENT"));
+                // 默认值
+                queryColumn.setDefaultValue(rs.getString("COLUMN_DEF"));
+                //小数位数
+                queryColumn.setDecimalDigits(rs.getInt("DECIMAL_DIGITS"));
+                //基数（通常是10或2）对于 DECIMAL_DIGITS 不适用的数据类型，则返回 Null。
+                queryColumn.setNumPrecRadix(rs.getInt("NUM_PREC_RADIX"));
+                String extra = rs.getString("EXTRA");
+                queryColumn.setExtra(extra);
+                Boolean onUpdate = org.apache.commons.lang3.StringUtils.isNotBlank(extra) && extra.toLowerCase().contains("on update current_timestamp");
+                queryColumn.setDateOnUpdate(onUpdate);
                 columnList.add(queryColumn);
             }
         } catch (Exception e) {
@@ -661,6 +772,42 @@ public class SqlUtils {
             SourceUtils.closeResult(rs);
         }
         return columnList;
+    }
+
+
+
+    /**
+     * 获得一个表的索引信息
+     * getIndexInfo
+     * catalog : 类别名称，因为存储在此数据库中，所以它必须匹配类别名称。该参数为 “” 则检索没有类别的描述，为 null 则表示该类别名称不应用于缩小搜索范围
+     * schema : 模式名称，因为存储在此数据库中，所以它必须匹配模式名称。该参数为 “” 则检索那些没有模式的描述，为 null 则表示该模式名称不应用于缩小搜索范围
+     * table : 表名称，因为存储在此数据库中，所以它必须匹配表名称
+     * unique : 该参数为 true 时，仅返回惟一值的索引；该参数为 false 时，返回所有索引，不管它们是否惟一
+     * approximate : 该参数为 true 时，允许结果是接近的数据值或这些数据值以外的值；该参数为 false 时，要求结果是精确结果
+     */
+    public List<QueryIndex> getIndexInfo(String dbName, String tableName, DatabaseMetaData metaData) {
+        ResultSet rs = null;
+        List<QueryIndex> indexList = new ArrayList<>();
+        try {
+            rs = metaData.getIndexInfo(null, dbName, tableName, false, true);
+            while (rs.next()) {
+                QueryIndex queryIndex = new QueryIndex();
+                // String ascOrDesc = rs.getString("ASC_OR_DESC");         // 列排序顺序: 升序还是降序
+                // int cardinality = rs.getInt("CARDINALITY");             // 基数
+                // short ordinalPosition = rs.getShort("ORDINAL_POSITION");// 在索引列顺序号
+                // boolean nonUnique = rs.getBoolean("NON_UNIQUE");        // 非唯一索引(Can index values be non-unique. false when TYPE is  tableIndexStatistic   )
+                // String indexQualifier = rs.getString("INDEX_QUALIFIER");// 索引目录（可能为空）
+                queryIndex.setIndexName(rs.getString("INDEX_NAME"));    // 索引的名称
+                queryIndex.setIndexType(rs.getShort("TYPE"));           // 索引类型
+                queryIndex.setIndexColumn(rs.getString("COLUMN_NAME"));
+                indexList.add(queryIndex);
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        }finally {
+            SourceUtils.closeResult(rs);
+        }
+        return indexList;
     }
 
 

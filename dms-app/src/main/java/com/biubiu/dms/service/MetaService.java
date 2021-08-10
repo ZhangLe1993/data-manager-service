@@ -2,7 +2,7 @@ package com.biubiu.dms.service;
 
 import com.biubiu.dms.core.exception.ServerException;
 import com.biubiu.dms.core.exception.SourceException;
-import com.biubiu.dms.core.model.QueryColumn;
+import com.biubiu.dms.core.model.QueryTable;
 import com.biubiu.dms.core.model.TableInfo;
 import com.biubiu.dms.core.utils.SqlUtils;
 import com.biubiu.dms.dao.ConnectionDao;
@@ -75,7 +75,7 @@ public class MetaService {
         List<String> schemas = sqlUtils.init(source).getDatabases();
         for(String schema : schemas) {
             DBTables dbTable = new DBTables(schema);
-            List<QueryColumn> tableList = null;
+            List<QueryTable> tableList = null;
             try {
                 tableList = sqlUtils.init(source).getTableList(schema);
             } catch (SourceException e) {
@@ -99,7 +99,7 @@ public class MetaService {
     public DBTables getSourceTables(Long id, String dbName) throws NotFoundException {
         DBTables dbTable = new DBTables(dbName);
         Connection source = getSource(id);
-        List<QueryColumn> tableList = null;
+        List<QueryTable> tableList = null;
         try {
             tableList = sqlUtils.init(source).getTableList(dbName);
         } catch (SourceException e) {

@@ -5,7 +5,13 @@ import com.biubiu.dms.core.common.Constants;
 import com.biubiu.dms.core.exception.ServerException;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
-
+/**
+ * @author ：张音乐
+ * @date ：Created in 2021/8/10 下午1:14
+ * @description：表索引信息
+ * @email: zhangyule1993@sina.com
+ * @version:
+ */
 @Data
 public class QueryColumn {
     private String name;
@@ -13,6 +19,12 @@ public class QueryColumn {
     private String comment;
     private String nullAble;
     private String size;
+    private String autoIncrement;
+    private String defaultValue;
+    private Integer decimalDigits;
+    private Integer numPrecRadix;
+    private Boolean dateOnUpdate;
+    private String extra;
 
     public QueryColumn(String name, String type) {
         if (StringUtils.isEmpty(name)) {
@@ -42,5 +54,13 @@ public class QueryColumn {
 
     public void setType(String type) {
         this.type = type == null ? Constants.EMPTY : type;
+    }
+
+    public void setAutoIncrement(String autoIncrement) {
+        this.autoIncrement = autoIncrement;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 }

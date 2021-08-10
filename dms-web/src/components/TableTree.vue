@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="['box', theme]" ref="box" style="height: calc(100vh - 145px); overflow: auto">
+    <div :class="['box', theme]" ref="box" v-on:contextmenu.prevent="handleShow($event)" style="height: calc(100vh - 145px); overflow: auto">
       <el-input
           placeholder="输入关键字进行过滤"
           v-model="filterText">
@@ -31,7 +31,8 @@
     <v-contextmenu ref="contextmenu">
       <!--编辑和删除Node-->
       <v-contextmenu-item v-if="isTableClick" @click="addEditTab(currentRightClickNodeData)">新查询</v-contextmenu-item>
-      <v-contextmenu-item v-if="isTableClick" @click="openDesignTableDialog">设计表</v-contextmenu-item>
+      <v-contextmenu-item v-if="currentRightClickNodeData === null" @click="openDesignTableDialog(false)">新建表</v-contextmenu-item>
+      <v-contextmenu-item v-if="isTableClick" @click="openDesignTableDialog(true)">设计表</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" @click="openRenameTableDrawer">重命名</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" >删除表</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" >清空表</v-contextmenu-item>
@@ -40,7 +41,7 @@
     <!--  -->
     <RenameTableDrawer :dialog="renameDialogVisible" :loading="renameDialogSubmitLoading" :cancelForm="cancelRenameTableDrawerForm" :form="renameDialogForm" :currentRightClickNodeData="currentRightClickNodeData" :changeLoading="changeLoading" :refreshTree="refreshTree"></RenameTableDrawer>
 
-    <DesignTable v-if="designTableVisible" :designTableVisible="designTableVisible" :closeDialog="closeDesignTableDialog" :tableInfo="currentRightClickNodeData"></DesignTable>
+    <DesignTable v-if="designTableVisible" :designTableVisible="designTableVisible" :closeDialog="closeDesignTableDialog" :tableInfo="currentRightClickNodeData" :editOpt="editOpt"></DesignTable>
   </div>
 </template>
 
@@ -60,6 +61,7 @@ export default {
   },
   data() {
     return {
+      editOpt: false,
       renameDialogVisible: false,
       renameDialogSubmitLoading: false,
       renameDialogForm: {
@@ -127,9 +129,9 @@ export default {
               if(obj['type'].indexOf('BOOLEAN') !== -1) {
                 icon = "iconfont icon-a-Group16"
               }
-              const callNull = obj.nullAble === 'YES';
-              target.push({ schemaId: data.schemaId, icon: icon, type: 'field', schema: data.schema, name: obj.name, comment: obj.comment, callNull: callNull, len: obj.size, leaf: true  });
             }
+            const callNull = obj.nullAble === 'YES';
+            target.push({ schemaId: data.schemaId, icon: icon, type: 'field', schema: data.schema, name: obj.name, comment: obj.comment, callNull: callNull, len: obj.size, leaf: true  });
           }
           return resolve(target);
         default:
@@ -148,7 +150,18 @@ export default {
       for(var i = 0; i < tableAndViewList.length; i++ ) {
         const obj = tableAndViewList[i];
         if(obj.type === 'TABLE') {
-          target.push({schemaId: this.schemaItem.id, icon: 'iconfont icon-biao',type: 'table', schema: this.schemaItem.schema, name: obj.name, children: []});
+          target.push({
+            schemaId: this.schemaItem.id,
+            icon: 'iconfont icon-biao',
+            type: 'table',
+            schema: this.schemaItem.schema,
+            name: obj.name,
+            charset: obj.charset,
+            comment: obj.comment,
+            engine: obj.engine,
+            autoIncrementNum: obj.autoIncrementNum,
+            children: []
+          });
         }
       }
       this.treeData = target;
@@ -187,6 +200,21 @@ export default {
         this.$refs.contextmenu.show(postition);
       }
     },
+    handleShow(event) {
+      // var DOM = event.currentTarget;
+      // 获取节点距离浏览器视口的高度
+      var top = event.clientY;
+      // 获取节点距离浏览器视口的宽度
+      var left = event.clientX;
+      const postition = {
+        top: top + 20,
+        left: left + 20,
+      }
+      this.isTableClick = false;
+      this.isFieldClick = false;
+      this.currentRightClickNodeData = null;
+      this.$refs.contextmenu.show(postition);
+    },
     handleHide() {
       this.$refs.contextmenu.hide();
     },
@@ -201,8 +229,8 @@ export default {
     changeLoading(loading) {
       this.renameDialogSubmitLoading = loading;
     },
-    openDesignTableDialog() {
-      console.log('111');
+    openDesignTableDialog(opt) {
+      this.editOpt = opt;
       this.designTableVisible = true;
     },
     closeDesignTableDialog() {
