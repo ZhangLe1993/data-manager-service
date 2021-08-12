@@ -791,13 +791,13 @@ public class DatabaseMetaDataUsingInfoSchema extends DatabaseMetaData {
         java.sql.PreparedStatement pStmt = null;
 
         StringBuilder sqlBuf = new StringBuilder(
-                this.databaseTerm.getValue() == PropertyDefinitions.DatabaseTerm.SCHEMA ? "SELECT TABLE_CATALOG AS TABLE_CAT, TABLE_SCHEMA AS TABLE_SCHEM,"
-                        : "SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM,");
+                this.databaseTerm.getValue() == PropertyDefinitions.DatabaseTerm.SCHEMA ? "SELECT T.TABLE_CATALOG AS TABLE_CAT, T.TABLE_SCHEMA AS TABLE_SCHEM,"
+                        : "SELECT T.TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM,");
         sqlBuf.append(
-                " TABLE_NAME, CASE WHEN TABLE_TYPE='BASE TABLE' THEN CASE WHEN TABLE_SCHEMA = 'mysql' OR TABLE_SCHEMA = 'performance_schema' THEN 'SYSTEM TABLE' ");
-        sqlBuf.append("ELSE 'TABLE' END WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, ");
-        sqlBuf.append("TABLE_COMMENT AS REMARKS, NULL AS TYPE_CAT, NULL AS TYPE_SCHEM, NULL AS TYPE_NAME, NULL AS SELF_REFERENCING_COL_NAME, ");
-        sqlBuf.append("NULL AS REF_GENERATION FROM INFORMATION_SCHEMA.TABLES");
+                " T.TABLE_NAME, CASE WHEN T.TABLE_TYPE='BASE TABLE' THEN CASE WHEN T.TABLE_SCHEMA = 'mysql' OR T.TABLE_SCHEMA = 'performance_schema' THEN 'SYSTEM TABLE' ");
+        sqlBuf.append("ELSE 'TABLE' END WHEN T.TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE T.TABLE_TYPE END AS TABLE_TYPE, ");
+        sqlBuf.append("T.TABLE_COMMENT AS REMARKS, NULL AS TYPE_CAT, NULL AS TYPE_SCHEM, NULL AS TYPE_NAME, NULL AS SELF_REFERENCING_COL_NAME, ");
+        sqlBuf.append("NULL AS REF_GENERATION, CCSA.CHARACTER_SET_NAME AS CHARACTER_SET_NAME, T.ENGINE AS ENGINE, T.AUTO_INCREMENT AS AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA");
 
         if (db != null || tableNamePattern != null) {
             sqlBuf.append(" WHERE");
@@ -805,19 +805,22 @@ public class DatabaseMetaDataUsingInfoSchema extends DatabaseMetaData {
 
         if (db != null) {
             sqlBuf.append("information_schema".equalsIgnoreCase(db) || "performance_schema".equalsIgnoreCase(db) || !StringUtils.hasWildcards(db)
-                    || this.databaseTerm.getValue() == PropertyDefinitions.DatabaseTerm.CATALOG ? " TABLE_SCHEMA = ?" : " TABLE_SCHEMA LIKE ?");
+                    || this.databaseTerm.getValue() == PropertyDefinitions.DatabaseTerm.CATALOG ? " T.TABLE_SCHEMA = ?" : " T.TABLE_SCHEMA LIKE ?");
+        }
+        if (db != null) {
+            sqlBuf.append(" AND CCSA.COLLATION_NAME = T.TABLE_COLLATION ");
         }
 
         if (tableNamePattern != null) {
             if (db != null) {
                 sqlBuf.append(" AND");
             }
-            sqlBuf.append(StringUtils.hasWildcards(tableNamePattern) ? " TABLE_NAME LIKE ?" : " TABLE_NAME = ?");
+            sqlBuf.append(StringUtils.hasWildcards(tableNamePattern) ? " T.TABLE_NAME LIKE ?" : " T.TABLE_NAME = ?");
         }
         if (types != null && types.length > 0) {
             sqlBuf.append(" HAVING TABLE_TYPE IN (?,?,?,?,?)");
         }
-        sqlBuf.append(" ORDER BY TABLE_TYPE, TABLE_SCHEMA, TABLE_NAME");
+        sqlBuf.append(" ORDER BY T.TABLE_TYPE, T.TABLE_SCHEMA, T.TABLE_NAME");
         try {
             pStmt = prepareMetaDataSafeStatement(sqlBuf.toString());
 

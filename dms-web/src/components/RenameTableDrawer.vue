@@ -76,7 +76,7 @@ export default {
           }
           const sql = 'alter table  `' + this.currentRightClickNodeData.name + '` rename to `' + formData.name.trim() +'`';
           // 新增
-          that.$api.post('/exec/sensitive/sql', { sourceId: 1, sql: sql }, async (res) => {
+          that.$api.post('/exec/sensitive/sql', { sourceId: this.currentRightClickNodeData.schemaId, sql: sql }, async (res) => {
             if(res !== undefined && res.status !== undefined && res.status === 200) {
               if(res.data.code === '200') {
                 this.openLayer('消息', res.data.data, 'success');

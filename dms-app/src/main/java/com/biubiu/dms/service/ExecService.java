@@ -43,14 +43,6 @@ public class ExecService {
             if (null == sqlUtils || null == sqlEntity || StringUtils.isEmpty(sqlEntity.getSql())) {
                 return "参数错误";
             }
-            if (!CollectionUtils.isEmpty(sqlEntity.getQuaryParams())) {
-                sqlEntity.getQuaryParams().forEach((k, v) -> {
-                    if (v instanceof List && ((List) v).size() > 0) {
-                        v = ((List) v).stream().collect(Collectors.joining(COMMA)).toString();
-                    }
-                    sqlEntity.getQuaryParams().put(k, v);
-                });
-            }
             SqlUtils sqlUtils = this.sqlUtils.init(source);
             List<String> executeSqlList = sqlParseUtils.getSqls(sqlEntity.getSql(), false);
             if (!CollectionUtils.isEmpty(executeSqlList)) {

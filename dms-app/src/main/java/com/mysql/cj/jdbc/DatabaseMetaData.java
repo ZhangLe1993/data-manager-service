@@ -3821,7 +3821,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
     }
 
     protected ColumnDefinition createTablesFields() {
-        Field[] fields = new Field[10];
+        Field[] fields = new Field[13];
         fields[0] = new Field("", "TABLE_CAT", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 255);
         fields[1] = new Field("", "TABLE_SCHEM", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 0);
         fields[2] = new Field("", "TABLE_NAME", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 255);
@@ -3832,6 +3832,10 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
         fields[7] = new Field("", "TYPE_NAME", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 0);
         fields[8] = new Field("", "SELF_REFERENCING_COL_NAME", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 0);
         fields[9] = new Field("", "REF_GENERATION", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 0);
+        //
+        fields[10] = new Field("", "CHARACTER_SET_NAME", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 255);
+        fields[11] = new Field("", "ENGINE", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 255);
+        fields[12] = new Field("", "AUTO_INCREMENT", this.metadataCollationIndex, this.metadataEncoding, MysqlType.VARCHAR, 255);
         return new DefaultColumnDefinition(fields);
     }
 

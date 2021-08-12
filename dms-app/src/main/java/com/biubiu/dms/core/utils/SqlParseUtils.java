@@ -27,6 +27,12 @@ public class SqlParseUtils {
 
     private static final String WITH = "with";
 
+    private static final String SHOW = "show";
+
+    private static final String DESC = "desc";
+
+    private static final String DESCRIBE = "describe";
+
     /**
      * 解析sql
      *
@@ -69,7 +75,7 @@ public class SqlParseUtils {
         if (split.length > 0) {
             list = new ArrayList<>();
             for (String sqlStr : split) {
-                boolean select = sqlStr.toLowerCase().startsWith(SELECT) || sqlStr.toLowerCase().startsWith(WITH);
+                boolean select = sqlStr.toLowerCase().startsWith(SELECT) || sqlStr.toLowerCase().startsWith(WITH) || sqlStr.toLowerCase().startsWith(SHOW) || sqlStr.toLowerCase().startsWith(DESC) || sqlStr.toLowerCase().startsWith(DESCRIBE);
                 if (isQuery) {
                     if (select) {
                         list.add(sqlStr);

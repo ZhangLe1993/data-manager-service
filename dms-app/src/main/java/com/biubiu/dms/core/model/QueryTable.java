@@ -15,10 +15,13 @@ public class QueryTable {
     public QueryTable() {
     }
 
-    public QueryTable(String name, String type, String comment) {
+    public QueryTable(String name, String type, String comment, String engine, String charset, String autoIncrementNum) {
         this.name = name;
         this.type = type;
         this.comment = comment;
+        this.engine = engine;
+        this.charset = charset;
+        this.autoIncrementNum = autoIncrementNum;
     }
 
     private String name;
@@ -26,6 +29,6 @@ public class QueryTable {
     private String comment;
     private String engine;
     private String charset;
-    private Long autoIncrementNum;
+    private String autoIncrementNum;
 
 }

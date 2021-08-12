@@ -41,7 +41,7 @@
     <!--  -->
     <RenameTableDrawer :dialog="renameDialogVisible" :loading="renameDialogSubmitLoading" :cancelForm="cancelRenameTableDrawerForm" :form="renameDialogForm" :currentRightClickNodeData="currentRightClickNodeData" :changeLoading="changeLoading" :refreshTree="refreshTree"></RenameTableDrawer>
 
-    <DesignTable v-if="designTableVisible" :designTableVisible="designTableVisible" :closeDialog="closeDesignTableDialog" :tableInfo="currentRightClickNodeData" :editOpt="editOpt"></DesignTable>
+    <DesignTable v-if="designTableVisible" :designTableVisible="designTableVisible" :closeDialog="closeDesignTableDialog" :tableInfo="currentRightClickNodeData" :editOpt="editOpt" :refreshTree="refreshTree" :schemaItem="schemaItem"></DesignTable>
   </div>
 </template>
 
@@ -189,6 +189,7 @@ export default {
     },
     // eslint-disable-next-line no-unused-vars
     handleContextMenu(event, data, node) {
+      console.log(this.schemaItem);
       const postition = {
         top: event.clientY + 20,
         left: event.clientX + 20,
@@ -201,6 +202,7 @@ export default {
       }
     },
     handleShow(event) {
+      console.log(this.schemaItem);
       // var DOM = event.currentTarget;
       // 获取节点距离浏览器视口的高度
       var top = event.clientY;

@@ -498,22 +498,28 @@ public class SqlUtils {
                     String type = TABLE;
                     String remarks = "";
                     String engine = "";
+                    String charset = "";
+                    String autoIncrementNum = "";
                     try {
                         type = rs.getString(TABLE_TYPE);
                         remarks = rs.getString("REMARKS");
+                        engine = rs.getString("ENGINE");
+                        charset = rs.getString("CHARACTER_SET_NAME");
+                        autoIncrementNum = rs.getString("AUTO_INCREMENT");
                     } catch (Exception e) {
                         // ignore
                     }
-                    tableList.add(new QueryTable(name, type, remarks));
+                    tableList.add(new QueryTable(name, type, remarks, engine, charset, autoIncrementNum));
                 }
             }
-            Map<String, QuerySchemaTableInfo> charsetMap = getTableCharset(dbName, tableList.stream().map(QueryTable::getName).collect(Collectors.toList()));
+            // 重写 DatabaseMetaData 提高效率
+            /* Map<String, QuerySchemaTableInfo> charsetMap = getTableCharset(dbName, tableList.stream().map(QueryTable::getName).collect(Collectors.toList()));
             tableList.stream().peek(p -> {
                 QuerySchemaTableInfo schemaTableInfo = charsetMap.get(p.getName());
                 p.setCharset(schemaTableInfo.getCharacter());
                 p.setEngine(schemaTableInfo.getEngine());
                 p.setAutoIncrementNum(schemaTableInfo.getAutoIncrementNum());
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()); */
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return tableList;
