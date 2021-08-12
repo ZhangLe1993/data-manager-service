@@ -2093,7 +2093,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                             while (results.next()) {
                                 TypeDescriptor typeDesc = new TypeDescriptor(results.getString("Type"), results.getString("Null"));
 
-                                byte[][] rowVal = new byte[24][];
+                                byte[][] rowVal = new byte[25][];
                                 rowVal[0] = DatabaseMetaData.this.databaseTerm.getValue() == PropertyDefinitions.DatabaseTerm.SCHEMA ? s2b("def") : s2b(dbStr);    // TABLE_CAT
                                 rowVal[1] = DatabaseMetaData.this.databaseTerm.getValue() == PropertyDefinitions.DatabaseTerm.SCHEMA ? s2b(dbStr) : null;          // TABLE_SCHEM
                                 rowVal[2] = s2b(tableName);                     // TABLE_NAME
@@ -2175,6 +2175,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 if (extra != null) {
                                     rowVal[22] = s2b(StringUtils.indexOfIgnoreCase(extra, "auto_increment") != -1 ? "YES" : "NO");
                                     rowVal[23] = s2b(StringUtils.indexOfIgnoreCase(extra, "generated") != -1 ? "YES" : "NO");
+                                    rowVal[24] = s2b(extra);
                                 }
 
                                 rows.add(new ByteArrayRow(rowVal, getExceptionInterceptor()));
@@ -3711,7 +3712,7 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                         }
 
                         while (results.next()) {
-                            byte[][] row = new byte[10][];
+                            byte[][] row = new byte[13][];
                             row[0] = dbMapsToSchema ? s2b("def") : s2b(dbPattern);// TABLE_CAT
                             row[1] = dbMapsToSchema ? s2b(dbPattern) : null;      // TABLE_SCHEM
                             row[2] = results.getBytes(1);
@@ -3721,6 +3722,10 @@ public class DatabaseMetaData implements java.sql.DatabaseMetaData {
                             row[7] = null;
                             row[8] = null;
                             row[9] = null;
+
+                            row[10] = null;
+                            row[11] = null;
+                            row[12] = null;
 
                             if (hasTableTypes) {
                                 String tableType = results.getString(typeColumnIndex);
