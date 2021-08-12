@@ -9,8 +9,8 @@ Vue.use(VueRouter);
 const routes = [
     {
         path: '/',
-        name: 'Index',
-        component: Index,
+        name: 'Home',
+        component: Home,
         meta:  {title: '数据库管理平台'},
     },
     {
