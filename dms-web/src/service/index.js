@@ -1,5 +1,5 @@
 import axios from 'axios'
-
+// 执行 cnpm run build 的时候打开
 // const baseURL = location.origin;
 // 本地開發的時候用這個
 const baseURL = "http://127.0.0.1:8115";

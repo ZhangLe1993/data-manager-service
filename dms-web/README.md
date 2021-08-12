@@ -1,24 +1,29 @@
-# dms-web
+# 数据库管理系统前端代码库(DMS)
 
-## Project setup
+## 初始化
 ```
+cnpm install 
+或者 
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### 编译运行
 ```
-npm run serve
+cnpm run start 
+或者 
+npm run start 
 ```
 
-### Compiles and minifies for production
+### 编译
 ```
+cnpm run build 
+或者
 npm run build
 ```
 
-### Lints and fixes files
+### 整理和修复文件
 ```
+cnpm run lint
+或者
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

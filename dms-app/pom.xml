@@ -223,7 +223,7 @@
 				<directory>src/main/resources</directory>
 			</resource>
 			<resource>
-				<directory>../y-shell-web/dist</directory>
+				<directory>../dms-web/dist</directory>
 				<!--<includes>
                     <include>*.html</include>
                 </includes>-->
