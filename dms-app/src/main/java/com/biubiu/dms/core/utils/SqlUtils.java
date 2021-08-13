@@ -106,7 +106,8 @@ public class SqlUtils {
 
     public void execute(String sql) throws ServerException {
         sql = filterAnnotate(sql);
-        checkSensitiveSql(sql);
+        // 关闭敏感SQL检查
+        // checkSensitiveSql(sql);
         if (isQueryLogEnable) {
             String md5 = MD5Util.getMD5(sql, true, 16);
             sqlLogger.info("{} execute for sql:{}", md5, formatSql(sql));
