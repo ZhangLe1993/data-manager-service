@@ -30,6 +30,7 @@
     </div>
     <v-contextmenu ref="contextmenu">
       <!--编辑和删除Node-->
+      <v-contextmenu-item @click="refreshTree">刷新</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" @click="addEditTab(currentRightClickNodeData)">新查询</v-contextmenu-item>
       <v-contextmenu-item v-if="currentRightClickNodeData === null" @click="openDesignTableDialog(false)">新建表</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" @click="openDesignTableDialog(true)">设计表</v-contextmenu-item>
