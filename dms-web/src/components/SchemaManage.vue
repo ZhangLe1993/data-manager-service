@@ -60,7 +60,7 @@ export default {
       this.$refs.editorTabs.addTab(node);
     },
     run() {
-      console.log(this.schemaItem);
+      // console.log(this.schemaItem);
       // 先清除掉上一次的
       this.$refs.outputTabs.removeResultTab();
       const content = this.$refs.editorTabs.getContent();

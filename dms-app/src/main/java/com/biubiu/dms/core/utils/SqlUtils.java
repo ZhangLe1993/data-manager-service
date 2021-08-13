@@ -819,13 +819,13 @@ public class SqlUtils {
             // `name`(2) DESC
             IndexColumn indexColumn = new IndexColumn();
             String columnName = org.apache.commons.lang3.StringUtils.substringBetween(p, "`", "`");
-            indexColumn.setColumnName(columnName);
+            indexColumn.setColumn(columnName);
             String regEx="[^0-9]";
             Pattern pattern = Pattern.compile(regEx);
             Matcher m = pattern.matcher(p);
             // 前缀限制长度
             String length = m.replaceAll("").trim();
-            indexColumn.setLength(length);
+            indexColumn.setPrefixSize(length);
             String order = p.contains("desc") ? "DESC" : "ASC";
             indexColumn.setOrder(order);
             return indexColumn;

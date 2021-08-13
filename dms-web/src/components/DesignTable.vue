@@ -1,13 +1,24 @@
 <template>
-  <el-dialog :title="getTitleName" :visible.sync="designTableVisible" width="80%" top="8vh" class="design" :show-close="false" :close-on-click-modal="false">
+  <el-dialog
+      v-loading="loading"
+      element-loading-text="拼命加载中"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.8)"
+      :title="getTitleName" :visible.sync="designTableVisible" width="80%" top="8vh" class="design" :show-close="false" :close-on-click-modal="false">
     <el-collapse accordion v-model="activeNames">
       <el-collapse-item name="baseInfo">
         <template slot="title">
           <h3>基本信息</h3>
         </template>
-        <el-form label-position="right" label-width="100px" :model="baseInfo" ref="form" :rules="rules">
+        <el-form
+            label-position="right"
+            label-width="100px"
+            :model="baseInfo"
+            ref="form"
+            :rules="rules">
         基础选项
-        <div class="design-base-info">
+        <div
+            class="design-base-info">
           <div style="width:60%; margin-left: 20px;">
               <el-form-item label="表名:" prop="tableName">
                 <el-input v-model="baseInfo.tableName" style="width:60%" :disabled="editOpt"></el-input>
@@ -50,10 +61,7 @@
         <el-button type="danger" size="mini" @click="delRow">删除</el-button>
         <el-divider></el-divider>
         <el-table
-            v-loading="loading"
-            element-loading-text="拼命加载中"
-            element-loading-spinner="el-icon-loading"
-            element-loading-background="rgba(0, 0, 0, 0.8)"
+
             :data="tableData"
             @row-click="fieldTableRowClick"
             border
@@ -320,6 +328,23 @@
           </template>
         </el-table-column>
 
+        <el-table-column property="indexColumns" label="排序">
+          <template slot-scope="scope">
+            <el-select
+                v-model="scope.row.order"
+                filterable
+                default-first-option
+                placeholder="请选择排序"  style="width:100%">
+              <el-option
+                  v-for="item in orderOptions"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+              </el-option>
+            </el-select>
+          </template>
+        </el-table-column>
+
         <el-table-column property="len" label="前缀长度">
           <template slot-scope="scope">
             <el-input
@@ -371,14 +396,14 @@ export default {
     },
     "currentSelectRow.autoIncrement": {
       handler: function() {
-        console.log(this.currentSelectRow);
+        // console.log(this.currentSelectRow);
         const index = getIndex(this.currentSelectRow, this.tableData);
         this.tableData[index] = this.currentSelectRow;
       }
     },
     "currentSelectRow.decimalDigits": {
       handler: function() {
-        console.log(this.currentSelectRow);
+        // console.log(this.currentSelectRow);
         const index = getIndex(this.currentSelectRow, this.tableData);
         this.tableData[index] = this.currentSelectRow;
       }
@@ -517,6 +542,8 @@ export default {
         tableAutoIncrementNum: this.tableInfo.autoIncrementNum,
       };
       this.baseInfo = baseInfoTemp;
+      const indexs = fieldInfo.indexs;
+      this.indexTableData = indexs;
     }
     this.loading = false;
   },
@@ -598,15 +625,19 @@ export default {
         {
           indexName: 'PRIMARY',
           indexType: 'Primary',
-          indexColumns: [{ column: 'id', prefixSize: '' }],
+          indexColumns: [{ column: 'id', prefixSize: '', order: 'ASC' }],
         }
       ],
       includeColumnTable: [],
       formLabelWidth: '120px',
       indexOptions: ['Primary', 'Normal', 'Unique', 'FullText', 'Spatial'],
       fieldOptions: [],
+      orderOptions : ['ASC', 'DESC'],
       dataTypeOptions:['VARCHAR', 'TEXT', 'DATETIME', 'TIMESTAMP', 'DATE', 'TIME', 'BLOB', 'CLOB', 'LONGTEXT', 'TINYINT', 'SMALLINT', 'INT', 'LONG', 'BIGINT', 'TINYINT UNSIGNED', 'SMALLINT UNSIGNED', 'INT UNSIGNED', 'LONG UNSIGNED', 'BIGINT UNSIGNED', 'DECIMAL', 'BOOLEAN'],
+
+      waitUpdateSQL: [],
     };
+
   },
   methods: {
     async getFields(id, schema, table) {
@@ -625,8 +656,8 @@ export default {
         type: 'warning'
       });
     },
-    fieldTableRowClick(row, column, event) {
-      console.log(row, column, event);
+    fieldTableRowClick(row) {
+      // console.log(row, column, event);
       this.currentSelectRow = row;
     },
     addRow() {
@@ -652,8 +683,8 @@ export default {
       // 重设置为null, 或者重置为下一行
       this.currentSelectRow = null;
     },
-    indexTableRowClick(row, column, event) {
-      console.log(row, column, event);
+    indexTableRowClick(row) {
+      // console.log(row, column, event);
       this.currentSelectIndexRow = row;
     },
     addIndex() {
@@ -673,20 +704,21 @@ export default {
       this.currentSelectIndexRow = null;
     },
     openSelectColumnsDialog(row, index) {
-      console.log(row, index);
+      // console.log(row, index);
       this.includeColumnTable = row.indexColumns;
       // 当前操作的行
       this.openSelectColumnRowIndex = index;
       this.innerVisible = true;
     },
-    indexColumnTableRowClick(row, column, event) {
-      console.log(row, column, event);
+    indexColumnTableRowClick(row) {
+      // console.log(row, column, event);
       this.currentSelectIndexColumnRow = row;
     },
     addColumn() {
       this.includeColumnTable.push({
         column: '',
         prefixSize: '',
+        order: 'ASC'
       });
     },
     delIndexColumn() {

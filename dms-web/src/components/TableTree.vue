@@ -189,7 +189,7 @@ export default {
     },
     // eslint-disable-next-line no-unused-vars
     handleContextMenu(event, data, node) {
-      console.log(this.schemaItem);
+      // console.log(this.schemaItem);
       const postition = {
         top: event.clientY + 20,
         left: event.clientX + 20,
@@ -202,7 +202,7 @@ export default {
       }
     },
     handleShow(event) {
-      console.log(this.schemaItem);
+      // console.log(this.schemaItem);
       // var DOM = event.currentTarget;
       // 获取节点距离浏览器视口的高度
       var top = event.clientY;

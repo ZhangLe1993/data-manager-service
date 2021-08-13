@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 public class IndexColumn {
-    private String columnName;
-    private String length;
+    private String column;
+    private String prefixSize;
     private String order;
 }

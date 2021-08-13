@@ -122,9 +122,9 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
             }
             sql = sql + item.indexType + " KEY (" + item.indexColumns.map(ele => {
                 if(ele.prefixSize !== '' && ele.prefixSize !== 0) {
-                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ")" ;
+                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ") " + ele.order;
                 } else {
-                    return "`" + ele.column + "`" ;
+                    return "`" + ele.column + "` " + ele.order;
                 }
             }).join(',') + ")";
         }
@@ -139,9 +139,9 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
             }
             sql = sql + " KEY `" + item.indexName + "` (" + item.indexColumns.map(ele => {
                 if(ele.prefixSize !== '' && ele.prefixSize !== 0) {
-                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ")" ;
+                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ") " + ele.order;
                 } else {
-                    return "`" + ele.column + "`" ;
+                    return "`" + ele.column + "` " + ele.order;
                 }
             }).join(',') + ")";
         }
@@ -156,9 +156,9 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
             }
             sql = sql + " UNIQUE KEY `" + item.indexName + "` (" + item.indexColumns.map(ele => {
                 if(ele.prefixSize !== '' && ele.prefixSize !== 0) {
-                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ")" ;
+                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ") " + ele.order ;
                 } else {
-                    return "`" + ele.column + "`" ;
+                    return "`" + ele.column + "` " + ele.order;
                 }
             }).join(',') + ")";
         }
@@ -183,9 +183,9 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
 
             sql = sql + " FULLTEXT KEY `" + item.indexName + "` (" + item.indexColumns.map(ele => {
                 if(ele.prefixSize !== '' && ele.prefixSize !== 0) {
-                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ")" ;
+                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ") " + ele.order;
                 } else {
-                    return "`" + ele.column + "`" ;
+                    return "`" + ele.column + "` " + ele.order;
                 }
             }).join(',') + ")";
         }
@@ -210,9 +210,9 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
 
             sql = sql + " SPATIAL KEY `" + item.indexName + "` (" + item.indexColumns.map(ele => {
                 if(ele.prefixSize !== '' && ele.prefixSize !== 0) {
-                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ")" ;
+                    return "`" + ele.column + "`" +  "(" + ele.prefixSize + ") " + ele.order;
                 } else {
-                    return "`" + ele.column + "`" ;
+                    return "`" + ele.column + "` " + ele.order;
                 }
             }).join(',') + ")";
         }

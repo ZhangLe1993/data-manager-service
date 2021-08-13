@@ -44,7 +44,7 @@ export default {
   computed: {
     getOldName() {
       if(this.currentRightClickNodeData !== undefined && this.currentRightClickNodeData !== null) {
-        console.log(this.currentRightClickNodeData);
+        // console.log(this.currentRightClickNodeData);
         return this.currentRightClickNodeData.name;
       }
       return "";
