@@ -12,14 +12,14 @@ import lombok.Data;
 @Data
 public class QueryIndex {
     private String indexName;
-    private short indexType;
+    private String indexType;
     private String indexColumn;
 
     public void setIndexName(String indexName) {
         this.indexName = indexName;
     }
 
-    public void setIndexType(short indexType) {
+    public void setIndexType(String indexType) {
         this.indexType = indexType;
     }
 

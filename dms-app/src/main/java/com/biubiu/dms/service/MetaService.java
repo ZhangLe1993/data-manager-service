@@ -120,7 +120,7 @@ public class MetaService {
         return source;
     }
 
-    public TableInfo getTableInfo(Long id, String dbName, String tableName) throws NotFoundException {
+    public TableInfo getTableInfo(Long id, String dbName, String tableName) throws Exception {
         Connection source = getSource(id);
         TableInfo tableInfo = null;
         try {

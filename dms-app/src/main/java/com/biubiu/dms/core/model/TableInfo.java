@@ -14,9 +14,9 @@ public class TableInfo {
 
     private List<QueryColumn> columns;
 
-    private List<QueryIndex> indexs;
+    private List<QueryKey> indexs;
 
-    public TableInfo(String tableName, List<String> primaryKeys, List<QueryExportKeys> exportedKeys, List<QueryColumn> columns, List<QueryIndex> indexs) {
+    public TableInfo(String tableName, List<String> primaryKeys, List<QueryExportKeys> exportedKeys, List<QueryColumn> columns, List<QueryKey> indexs) {
         this.tableName = tableName;
         this.exportedKeys = exportedKeys;
         this.primaryKeys = primaryKeys;

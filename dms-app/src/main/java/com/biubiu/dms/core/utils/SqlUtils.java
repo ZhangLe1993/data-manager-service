@@ -35,6 +35,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.biubiu.dms.core.consts.Consts.*;
@@ -581,7 +582,7 @@ public class SqlUtils {
      * @return
      * @throws SourceException
      */
-    public TableInfo getTableInfo(String dbName, String tableName) throws SourceException {
+    public TableInfo getTableInfo(String dbName, String tableName) throws Exception {
         TableInfo tableInfo = null;
         Connection connection = null;
         try {
@@ -591,7 +592,7 @@ public class SqlUtils {
                 List<String> primaryKeys = getPrimaryKeys(dbName, tableName, metaData);
                 List<QueryExportKeys> exportedKeys = getExportedKeys(dbName, tableName, metaData);
                 List<QueryColumn> columns = getColumns(dbName, tableName, metaData);
-                List<QueryIndex> indexs = getIndexInfo(dbName, tableName, metaData);
+                List<QueryKey> indexs = getKeyInfo(tableName);
                 tableInfo = new TableInfo(tableName, primaryKeys, exportedKeys, columns, indexs);
             }
         } catch (SQLException e) {
@@ -781,6 +782,118 @@ public class SqlUtils {
     }
 
 
+    public List<QueryKey> getKeyInfo(String tableName) throws Exception {
+        List<QueryKey> resList = new ArrayList<>();
+        String sql = "SHOW CREATE TABLE `" + tableName + "`";
+        PaginateWithQueryColumns paginateWithQueryColumns = syncQuery4Paginate(sql, null, null, null, 1,null);
+        List<Map<String, Object>> list = paginateWithQueryColumns.getResultList();
+        Map<String, Object> map = list.get(0);
+        String text = map.get("Create Table").toString().toLowerCase();
+        String temp = org.apache.commons.lang3.StringUtils.substringAfter(text, "(");
+        String temp2 = org.apache.commons.lang3.StringUtils.substringBeforeLast(temp, ")");
+        String [] arr = org.apache.commons.lang3.StringUtils.split(temp2, "\n");
+        List<String> keyTextList = Arrays.stream(arr).filter(p -> p.contains("key") || p.contains("index")).collect(Collectors.toList());
+        for(int i = 0; i < keyTextList.size(); i++) {
+            QueryKey queryKey = new QueryKey();
+            String item = keyTextList.get(i);
+            // 获取 索引类型
+            String type = getKeyType(item);
+            queryKey.setIndexType(type);
+            // 获取索引名称
+            String indexName = getKeyName(item, type);
+            queryKey.setIndexName(indexName);
+            // 获取索引字段
+            String fieldInfoAfter = org.apache.commons.lang3.StringUtils.substringAfter(item, "(");
+            String fieldInfo = org.apache.commons.lang3.StringUtils.substringBeforeLast(fieldInfoAfter, ")");
+            String[] columns = org.apache.commons.lang3.StringUtils.split(fieldInfo, ",");
+            List<IndexColumn> columnsList = getKeyColumns(columns);
+            queryKey.setIndexColumns(columnsList);
+            resList.add(queryKey);
+        }
+        return resList;
+    }
+
+    private List<IndexColumn> getKeyColumns(String[] columns) {
+        List<IndexColumn> columnsList = Arrays.stream(columns).map(p -> {
+            // `id`
+            // `name`(2) DESC
+            IndexColumn indexColumn = new IndexColumn();
+            String columnName = org.apache.commons.lang3.StringUtils.substringBetween(p, "`", "`");
+            indexColumn.setColumnName(columnName);
+            String regEx="[^0-9]";
+            Pattern pattern = Pattern.compile(regEx);
+            Matcher m = pattern.matcher(p);
+            // 前缀限制长度
+            String length = m.replaceAll("").trim();
+            indexColumn.setLength(length);
+            String order = p.contains("desc") ? "DESC" : "ASC";
+            indexColumn.setOrder(order);
+            return indexColumn;
+        }).collect(Collectors.toList());
+        return columnsList;
+    }
+
+    private String getKeyName(String item, String type) {
+        String indexName = "";
+        if(type.equals("Primary")) {
+            // 主键索引一定是 PRIMARY, 但是在建表语句中是省略的
+            indexName = "PRIMARY";
+        } else {
+            String itemAfter = org.apache.commons.lang3.StringUtils.substringAfter(item, "key");
+            indexName = org.apache.commons.lang3.StringUtils.substringBefore(itemAfter, "(").replaceAll("`", "").trim();
+        }
+        return indexName;
+    }
+
+    private String getKeyType(String item) {
+        String type = "Normal";
+        String keyType = org.apache.commons.lang3.StringUtils.substringBefore(item, "key");
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(keyType)) {
+            if(keyType.trim().equals("primary") ) {
+                type = "Primary";
+            }
+            if(keyType.trim().equals("unique")) {
+                type = "Unique";
+            }
+            if(keyType.trim().equals("fullText")) {
+                type = "FullText";
+            }
+            if(keyType.trim().equals("spatial")) {
+                type = "Spatial";
+            }
+        }
+        return type;
+    }
+
+    /**
+     * 获得一个表的索引信息
+     * getIndexInfo
+     * catalog : 类别名称，因为存储在此数据库中，所以它必须匹配类别名称。该参数为 “” 则检索没有类别的描述，为 null 则表示该类别名称不应用于缩小搜索范围
+     * schema : 模式名称，因为存储在此数据库中，所以它必须匹配模式名称。该参数为 “” 则检索那些没有模式的描述，为 null 则表示该模式名称不应用于缩小搜索范围
+     * table : 表名称，因为存储在此数据库中，所以它必须匹配表名称
+     * unique : 该参数为 true 时，仅返回惟一值的索引；该参数为 false 时，返回所有索引，不管它们是否惟一
+     * approximate : 该参数为 true 时，允许结果是接近的数据值或这些数据值以外的值；该参数为 false 时，要求结果是精确结果
+     */
+    public void queryIndexInfo(String dbName, String tableName, DatabaseMetaData metaData) {
+        ResultSet rs = null;
+        try {
+            rs = metaData.getIndexInfo(null, dbName, tableName, false, true);
+            while (rs.next()) {
+                String ascOrDesc = rs.getString("ASC_OR_DESC");         // 列排序顺序: 升序还是降序
+                int cardinality = rs.getInt("CARDINALITY");             // 基数
+                short ordinalPosition = rs.getShort("ORDINAL_POSITION");// 在索引列顺序号
+                boolean nonUnique = rs.getBoolean("NON_UNIQUE");        // 非唯一索引(Can index values be non-unique. false when TYPE is  tableIndexStatistic   )
+                String indexQualifier = rs.getString("INDEX_QUALIFIER");// 索引目录（可能为空）
+                String indexName = rs.getString("INDEX_NAME");          // 索引的名称
+                short indexType = rs.getShort("TYPE");          // 索引类型
+                String columnName = rs.getString("COLUMN_NAME");
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            //
+        }
+    }
 
     /**
      * 获得一个表的索引信息
@@ -798,13 +911,18 @@ public class SqlUtils {
             rs = metaData.getIndexInfo(null, dbName, tableName, false, true);
             while (rs.next()) {
                 QueryIndex queryIndex = new QueryIndex();
-                // String ascOrDesc = rs.getString("ASC_OR_DESC");         // 列排序顺序: 升序还是降序
-                // int cardinality = rs.getInt("CARDINALITY");             // 基数
-                // short ordinalPosition = rs.getShort("ORDINAL_POSITION");// 在索引列顺序号
-                // boolean nonUnique = rs.getBoolean("NON_UNIQUE");        // 非唯一索引(Can index values be non-unique. false when TYPE is  tableIndexStatistic   )
-                // String indexQualifier = rs.getString("INDEX_QUALIFIER");// 索引目录（可能为空）
+                String ascOrDesc = rs.getString("ASC_OR_DESC");         // 列排序顺序: 升序还是降序
+                int cardinality = rs.getInt("CARDINALITY");             // 基数
+                short ordinalPosition = rs.getShort("ORDINAL_POSITION");// 在索引列顺序号
+                boolean nonUnique = rs.getBoolean("NON_UNIQUE");        // 非唯一索引(Can index values be non-unique. false when TYPE is  tableIndexStatistic   )
+                String indexQualifier = rs.getString("INDEX_QUALIFIER");// 索引目录（可能为空）
                 queryIndex.setIndexName(rs.getString("INDEX_NAME"));    // 索引的名称
-                queryIndex.setIndexType(rs.getShort("TYPE"));           // 索引类型
+                //queryIndex.setIndexType(rs.getShort("TYPE"));           // 索引类型
+                if(nonUnique) {
+                    queryIndex.setIndexType("Unique");
+                } else {
+                    queryIndex.setIndexType("Normal");
+                }
                 queryIndex.setIndexColumn(rs.getString("COLUMN_NAME"));
                 indexList.add(queryIndex);
             }

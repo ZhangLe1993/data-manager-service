@@ -70,8 +70,16 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
         if(!item.canVoid) {
             sql = sql + " NOT NULL ";
         }
-        if(item.defaultValue !== null) {
-            sql = sql + " DEFAULT " + item.defaultValue;
+        if(item.defaultValue !== null && item.defaultValue.trim() !== '') {
+            console.log(item.defaultValue);
+            if(item.defaultValue === 'CURRENT_TIMESTAMP') {
+                sql = sql + " DEFAULT " + item.defaultValue + "";
+            } else {
+                sql = sql + " DEFAULT '" + item.defaultValue + "'";
+            }
+        }
+        if(item.defaultValue === '') {
+            sql = sql + " DEFAULT ''";
         }
         if(type.indexOf('INT') !== -1 && item.autoIncrement) {
             sql = sql + " AUTO_INCREMENT ";
@@ -191,6 +199,15 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
                 open('全文索引名称必须以[idx_]开头', _that);
                 return null;
             }
+            const checkList = fieldList.filter((ele) => { return item.indexColumns.includes(ele.name) });
+            for(let i = 0; i < checkList.length; i++) {
+                const ele = checkList[i];
+                if(ele.canVoid) {
+                    open('创建空间索引的列必须指明 not null, mysql中只有MyiSAM存储引擎支持空间索引', _that);
+                    return null;
+                }
+            }
+
             sql = sql + " SPATIAL KEY `" + item.indexName + "` (" + item.indexColumns.map(ele => {
                 if(ele.prefixSize !== '' && ele.prefixSize !== 0) {
                     return "`" + ele.column + "`" +  "(" + ele.prefixSize + ")" ;
