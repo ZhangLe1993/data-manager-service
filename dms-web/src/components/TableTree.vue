@@ -35,12 +35,16 @@
       <v-contextmenu-item v-if="currentRightClickNodeData === null" @click="openDesignTableDialog(false)">新建表</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" @click="openDesignTableDialog(true)">设计表</v-contextmenu-item>
       <v-contextmenu-item v-if="isTableClick" @click="openRenameTableDrawer">重命名</v-contextmenu-item>
-      <v-contextmenu-item v-if="isTableClick" >删除表</v-contextmenu-item>
-      <v-contextmenu-item v-if="isTableClick" >清空表</v-contextmenu-item>
+      <v-contextmenu-item v-if="isTableClick" @click="openDropTableDrawer" >删除表</v-contextmenu-item>
+      <v-contextmenu-item v-if="isTableClick" @click="openTruncateTableDrawer" >清空表</v-contextmenu-item>
     </v-contextmenu>
 
     <!--  -->
     <RenameTableDrawer :dialog="renameDialogVisible" :loading="renameDialogSubmitLoading" :cancelForm="cancelRenameTableDrawerForm" :form="renameDialogForm" :currentRightClickNodeData="currentRightClickNodeData" :changeLoading="changeLoading" :refreshTree="refreshTree"></RenameTableDrawer>
+
+    <DropTableDrawer :dialog="dropDialogVisible" :loading="dropDialogSubmitLoading" :cancelForm="cancelDropTableDrawerForm" :currentRightClickNodeData="currentRightClickNodeData" :changeLoading="changeLoading" :refreshTree="refreshTree"></DropTableDrawer>
+
+    <TruncateTableDrawer :dialog="truncateDialogVisible" :loading="truncateDialogSubmitLoading" :cancelForm="cancelTruncateTableDrawerForm" :currentRightClickNodeData="currentRightClickNodeData" :changeLoading="changeLoading" :refreshTree="refreshTree"></TruncateTableDrawer>
 
     <DesignTable v-if="designTableVisible" :designTableVisible="designTableVisible" :closeDialog="closeDesignTableDialog" :tableInfo="currentRightClickNodeData" :editOpt="editOpt" :refreshTree="refreshTree" :schemaItem="schemaItem"></DesignTable>
   </div>
@@ -49,6 +53,8 @@
 <script>
 import RenameTableDrawer from "@/components/RenameTableDrawer";
 import DesignTable from "@/components/DesignTable";
+import DropTableDrawer from "@/components/DropTableDrawer";
+import TruncateTableDrawer from "@/components/TruncateTableDrawer";
 export default {
   name: "TableTree",
   props: {
@@ -57,6 +63,8 @@ export default {
     schemaItem: Object,
   },
   components: {
+    TruncateTableDrawer: TruncateTableDrawer,
+    DropTableDrawer: DropTableDrawer,
     RenameTableDrawer: RenameTableDrawer,
     DesignTable: DesignTable,
   },
@@ -64,7 +72,11 @@ export default {
     return {
       editOpt: false,
       renameDialogVisible: false,
+      dropDialogVisible: false,
+      truncateDialogVisible: false,
       renameDialogSubmitLoading: false,
+      dropDialogSubmitLoading: false,
+      truncateDialogSubmitLoading: false,
       renameDialogForm: {
         name: '',
       },
@@ -225,12 +237,28 @@ export default {
       this.renameDialogVisible = true;
       this.renameDialogForm.name = this.currentRightClickNodeData.name;
     },
+    openDropTableDrawer() {
+      this.dropDialogVisible = true;
+    },
+    openTruncateTableDrawer() {
+      this.truncateDialogVisible = true;
+    },
     cancelRenameTableDrawerForm() {
       this.renameDialogVisible = false;
       this.renameDialogSubmitLoading = false;
     },
+    cancelDropTableDrawerForm() {
+      this.dropDialogVisible = false;
+      this.dropDialogSubmitLoading = false;
+    },
+    cancelTruncateTableDrawerForm() {
+      this.truncateDialogVisible = false;
+      this.truncateDialogSubmitLoading = false;
+    },
     changeLoading(loading) {
       this.renameDialogSubmitLoading = loading;
+      this.dropDialogSubmitLoading = loading;
+      this.truncateDialogSubmitLoading = loading;
     },
     openDesignTableDialog(opt) {
       this.editOpt = opt;

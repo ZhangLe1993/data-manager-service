@@ -74,8 +74,10 @@ public class SqlUtils {
 
     private SourceUtils sourceUtils;
 
+    private BaseSource source;
+
     public SqlUtils init(BaseSource source) {
-        return SqlUtilsBuilder
+        SqlUtils sqlUtils = SqlUtilsBuilder
                 .getBuilder()
                 .withJdbcUrl(source.getJdbcUrl())
                 .withUsername(source.getUsername())
@@ -87,6 +89,8 @@ public class SqlUtils {
                 .withResultLimit(this.resultLimit)
                 .withIsQueryLogEnable(this.isQueryLogEnable)
                 .build();
+        sqlUtils.source = source;
+        return sqlUtils;
     }
 
     public SqlUtils init(String jdbcUrl, String username, String password, String dbVersion, List<Dict> properties, boolean ext) {
@@ -786,6 +790,10 @@ public class SqlUtils {
     public List<QueryKey> getKeyInfo(String tableName) throws Exception {
         List<QueryKey> resList = new ArrayList<>();
         String sql = "SHOW CREATE TABLE `" + tableName + "`";
+        // 重新创建连接, 不要复用 不然会报错 如下示例
+        // The last packet successfully received from the server was 1,612,628 milliseconds ago.
+        // The last packet sent successfully to the server was 1,612,636 milliseconds ago.
+        this.init(this.source);
         PaginateWithQueryColumns paginateWithQueryColumns = syncQuery4Paginate(sql, null, null, null, 1,null);
         List<Map<String, Object>> list = paginateWithQueryColumns.getResultList();
         Map<String, Object> map = list.get(0);
@@ -1309,6 +1317,7 @@ public class SqlUtils {
         }
 
         public SqlUtils build() throws ServerException {
+
             String datasource = SourceUtils.isSupportedDatasource(jdbcUrl);
             SourceUtils.checkDriver(datasource, jdbcUrl, dbVersion, isExt);
 
@@ -1329,7 +1338,6 @@ public class SqlUtils {
             sqlUtils.resultLimit = this.resultLimit;
             sqlUtils.isQueryLogEnable = this.isQueryLogEnable;
             sqlUtils.sourceUtils = new SourceUtils(this.jdbcDataSource);
-
             return sqlUtils;
         }
     }

@@ -41,6 +41,14 @@
                 <el-option label="gbk" value="gbk"></el-option>
               </el-select>
               &nbsp;&nbsp;
+              <i class="el-icon-question" style="cursor: pointer;font-size: 20px;" @click="open3('存储引擎一旦保存不可更改')"></i>
+            </el-form-item>
+            <el-form-item label="存储引擎:">
+              <el-select v-model="baseInfo.engine" clearable placeholder="一旦保存不可更改" style="width:60%" :disabled="editOpt">
+                <el-option label="InnoDB" value="InnoDB"></el-option>
+                <el-option label="MyISAM" value="MyISAM"></el-option>
+              </el-select>
+              &nbsp;&nbsp;
               <i class="el-icon-question" style="cursor: pointer;font-size: 20px;" @click="open3('字符集一旦保存不可更改')"></i>
             </el-form-item>
             <el-form-item label="自增起始值:">

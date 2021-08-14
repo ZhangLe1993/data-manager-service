@@ -39,7 +39,11 @@ export default {
     },
     mounted () {
       if(this.item !== undefined &&  this.item !== null &&  this.item['title'] !== undefined &&  this.item['title'] !== null &&  this.item['title'].trim() !== '') {
-        this.content = 'SELECT * FROM `' + this.item.title.replace("Query ", "") + "`";
+        if(this.item['title'].indexOf('新建查询') !== -1) {
+          this.content = 'SELECT * ';
+        } else {
+          this.content = 'SELECT * FROM `' + this.item.title.replace("Query ", "") + "`" + " limit 100;";
+        }
       } else {
         this.content = '';
       }
