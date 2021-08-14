@@ -44,7 +44,7 @@
               <i class="el-icon-question" style="cursor: pointer;font-size: 20px;" @click="open3('存储引擎一旦保存不可更改')"></i>
             </el-form-item>
             <el-form-item label="存储引擎:">
-              <el-select v-model="baseInfo.engine" clearable placeholder="一旦保存不可更改" style="width:60%" :disabled="editOpt">
+              <el-select v-model="baseInfo.tableEngine" clearable placeholder="一旦保存不可更改" style="width:60%" :disabled="editOpt">
                 <el-option label="InnoDB" value="InnoDB"></el-option>
                 <el-option label="MyISAM" value="MyISAM"></el-option>
               </el-select>
@@ -426,7 +426,7 @@ export default {
     },
     getTitleName() {
       if(this.tableInfo !== undefined && this.tableInfo !== null) {
-        return "设计表[" + this.tableInfo.name+"]";
+        return "设计表[" + this.tableInfo.name+"] 设计表会删除旧表结构重新创建, 如果表中有数据请谨慎操作, 后续再完善";
       }
       return "新建表";
     },
@@ -565,41 +565,24 @@ export default {
         tableName: '',
         tableEngine: 'InnoDB',
         tableComment: '',
-        tableCharacter: '',
+        tableCharacter: 'utf8mb4',
         tableAutoIncrementNum: '',
       },
-      rules: {
-        tableName: [
-          { required: true, message: '请输入表名', trigger: 'blur' },
-          { min: 1, max: 64, message: '长度在 1 到 64 个字符', trigger: 'blur' }
-        ],
-      },
-      stringTypeTemplateArr : ['TEXT', 'VARCHAR', 'LONGTEXT'],
-      dateTimeTemplateArr: ['DATETIME', 'TIMESTAMP'],
-      halfDateTimeTemplateArr: ['DATE', 'TIME'],
-      intTemplateArr:['TINYINT', 'SMALLINT', 'INT', 'LONG', 'BIGINT', 'TINYINT UNSIGNED', 'SMALLINT UNSIGNED', 'INT UNSIGNED', 'LONG UNSIGNED', 'BIGINT UNSIGNED'],
-      // 不允许修改长度的类型
-      notAllowEditLenArr:['TEXT', 'TIMESTAMP', 'DATE', 'DATETIME', 'BLOB', 'CLOB', 'BOOLEAN', 'LONGTEXT', 'TINYINT', 'SMALLINT', 'INT', 'LONG', 'BIGINT', 'TINYINT UNSIGNED', 'SMALLINT UNSIGNED', 'INT UNSIGNED', 'LONG UNSIGNED', 'BIGINT UNSIGNED'],
-      loading: true,
-      submitBtnLoading: false,
-      currentSelectRow: null,
-      currentSelectIndexRow: null,
-      currentSelectIndexColumnRow: null,
       tableData: [
-          {
-        name: 'id',
-        comment: '主键',
-        dateOnUpdate: false,
-        extra: '',
-        type:'BIGINT UNSIGNED',
-        len: 20,
-        canVoid: false,
-        pri: true,
-        autoIncrement: true,
-        decimalDigits: 0,
-        defaultValue: null,
-        numPrecRadix: 10,
-      },
+        {
+          name: 'id',
+          comment: '主键',
+          dateOnUpdate: false,
+          extra: '',
+          type:'BIGINT UNSIGNED',
+          len: 20,
+          canVoid: false,
+          pri: true,
+          autoIncrement: true,
+          decimalDigits: 0,
+          defaultValue: null,
+          numPrecRadix: 10,
+        },
         {
           name: 'gmt_create',
           comment: '创建时间',
@@ -637,6 +620,23 @@ export default {
         }
       ],
       includeColumnTable: [],
+      rules: {
+        tableName: [
+          { required: true, message: '请输入表名', trigger: 'blur' },
+          { min: 1, max: 64, message: '长度在 1 到 64 个字符', trigger: 'blur' }
+        ],
+      },
+      stringTypeTemplateArr : ['TEXT', 'VARCHAR', 'LONGTEXT'],
+      dateTimeTemplateArr: ['DATETIME', 'TIMESTAMP'],
+      halfDateTimeTemplateArr: ['DATE', 'TIME'],
+      intTemplateArr:['TINYINT', 'SMALLINT', 'INT', 'LONG', 'BIGINT', 'TINYINT UNSIGNED', 'SMALLINT UNSIGNED', 'INT UNSIGNED', 'LONG UNSIGNED', 'BIGINT UNSIGNED'],
+      // 不允许修改长度的类型
+      notAllowEditLenArr:['TEXT', 'TIMESTAMP', 'DATE', 'DATETIME', 'BLOB', 'CLOB', 'BOOLEAN', 'LONGTEXT', 'TINYINT', 'SMALLINT', 'INT', 'LONG', 'BIGINT', 'TINYINT UNSIGNED', 'SMALLINT UNSIGNED', 'INT UNSIGNED', 'LONG UNSIGNED', 'BIGINT UNSIGNED'],
+      loading: true,
+      submitBtnLoading: false,
+      currentSelectRow: null,
+      currentSelectIndexRow: null,
+      currentSelectIndexColumnRow: null,
       formLabelWidth: '120px',
       indexOptions: ['Primary', 'Normal', 'Unique', 'FullText', 'Spatial'],
       fieldOptions: [],

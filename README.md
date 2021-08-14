@@ -30,6 +30,9 @@
    | 支持elasticsearch | ｘ |     
             
    ##### 快速运行
+    # 绑定物理机上的.ssh是为了有可能需要从github拉代码, 用物理机上的密钥
+    # 绑定物理机上的.m2目录防止每次重启都要重新拉jar包
+    
     docker run -itd --name dms -e active="dev" -p 8115:8115 -v /root/.m2:/root/.m2 -v /root/.ssh:/root/.ssh zhangyule1993/dms:v1.0.0.release
     
    ### 示例图片

@@ -35,7 +35,7 @@ const open = (text, _that) => {
 }
 const constructSQL = (tableInfo, fieldList, indexList, _that) => {
     // const that = this;
-    let sql = "CREATE TABLE `" + tableInfo.tableName + "` (";
+    let sql = "DROP TABLE IF EXISTS `" + tableInfo.tableName + "`;"+ "CREATE TABLE `" + tableInfo.tableName + "` (";
     // 构造字段部分
     if(!arrIsNotNull(fieldList)) {
         open('表设计不合理,不符合开发规范, 没有任何字段', _that);
@@ -222,6 +222,9 @@ const constructSQL = (tableInfo, fieldList, indexList, _that) => {
     }
 
     sql = sql + ")";
+    if(tableInfo.tableEngine !== null && tableInfo.tableEngine.trim() !== '') {
+        sql = sql + " ENGINE=" + tableInfo.tableEngine;
+    }
     if(tableInfo.tableCharacter !== null && tableInfo.tableCharacter.trim() !== '') {
         sql = sql + " DEFAULT CHARACTER SET=" + tableInfo.tableCharacter;
     }

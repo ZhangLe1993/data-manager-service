@@ -1,8 +1,8 @@
 import axios from 'axios'
 // 执行 cnpm run build 的时候打开
-// const baseURL = location.origin;
+const baseURL = location.origin;
 // 本地開發的時候用這個
-const baseURL = "http://127.0.0.1:8115";
+// const baseURL = "http://127.0.0.1:8115";
 let http = axios.create({
     // `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
     // 它可以通过设置一个 `baseURL` 便于为 axios 实例的方法传递相对 URL
